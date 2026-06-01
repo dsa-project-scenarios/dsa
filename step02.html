@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 02 · Data Map — DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080d;
+    --bg-2:#0b0f17;
+    --panel:#0e131d;
+    --panel-2:#121826;
+    --line:#1d2636;
+    --line-2:#2a3852;
+    --txt:#dfe6f2;
+    --txt-dim:#8a99b3;
+    --txt-faint:#5b6a86;
+    --accent:#3ec5ff;
+    --accent-2:#2f7dff;
+    --warn:#ff5d6c;
+    --gold:#ffce5c;
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:var(--sans);
+    line-height:1.7;
+    background-image:
+      radial-gradient(circle at 15% 0%,rgba(57,160,255,.08),transparent 40%),
+      radial-gradient(circle at 85% 20%,rgba(57,160,255,.06),transparent 45%),
+      linear-gradient(rgba(29,38,54,.25) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(29,38,54,.25) 1px,transparent 1px);
+    background-size:auto,auto,42px 42px,42px 42px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+
+  /* ── top bar ── */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:rgba(6,8,13,.85);
+    backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar .wrap{display:flex;align-items:center;gap:14px;height:62px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px}
+  .brand .logo{
+    width:30px;height:30px;flex:0 0 30px;overflow:hidden;
+    display:grid;place-items:center;
+  }
+  .brand .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .brand small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--txt-dim)}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* ── hero / header ── */
+  header.hero{padding:64px 0 38px;border-bottom:1px solid var(--line)}
+  .step-tag{
+    font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent);
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .step-tag .num{
+    background:var(--accent);color:#04121b;font-weight:700;
+    padding:3px 9px;border-radius:5px;letter-spacing:1px;
+  }
+  header.hero h1{
+    font-size:clamp(34px,6vw,58px);font-weight:900;letter-spacing:-1px;line-height:1.05;
+    background:linear-gradient(120deg,#fff 30%,var(--accent) 120%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header.hero .sub{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;color:var(--txt-faint);
+    margin-top:14px;text-transform:uppercase;
+  }
+  .intro{
+    margin-top:30px;padding:24px 26px;border:1px solid var(--line);border-left:3px solid var(--accent-2);
+    background:linear-gradient(90deg,rgba(57,160,255,.06),transparent);border-radius:6px;
+    color:var(--txt-dim);font-size:15.5px;
+  }
+
+  /* ── accordion ── */
+  .accordion{margin:44px 0}
+  .acc-item{
+    border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;
+    background:var(--panel);transition:border-color .25s;
+  }
+  .acc-item.open{border-color:var(--line-2)}
+  .acc-head{
+    width:100%;text-align:left;cursor:pointer;border:0;background:transparent;color:var(--txt);
+    display:flex;align-items:center;gap:18px;padding:22px 24px;font-family:var(--sans);
+  }
+  .acc-head:hover{background:var(--panel-2)}
+  .acc-idx{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--line-2);border-radius:6px;padding:5px 10px;min-width:46px;text-align:center;
+  }
+  .acc-title{font-size:18px;font-weight:700;flex:1}
+  .acc-sub{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:2px;display:block;margin-top:3px;font-weight:400}
+  .chev{
+    width:22px;height:22px;flex-shrink:0;color:var(--txt-dim);transition:transform .3s;
+  }
+  .acc-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .acc-body{
+    max-height:0;overflow:hidden;transition:max-height .4s ease;
+    border-top:1px solid transparent;
+  }
+  .acc-item.open .acc-body{border-top-color:var(--line)}
+  .acc-inner{padding:26px 26px 30px}
+
+  /* content typography */
+  .lead{color:var(--txt-dim);font-size:15px;margin-bottom:22px}
+  .lead + .lead{margin-top:-6px}
+  .lead strong,.callout strong{color:var(--txt)}
+  .lead .hl{color:var(--accent);font-weight:700}
+  .label{
+    font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--accent-2);
+    text-transform:uppercase;margin:26px 0 12px;display:flex;align-items:center;gap:10px;
+  }
+  .label::before{content:"";width:18px;height:1px;background:var(--accent-2)}
+  ul.pts{list-style:none;display:grid;gap:10px}
+  ul.pts li{
+    position:relative;padding:13px 16px 13px 40px;
+    background:linear-gradient(90deg,rgba(57,160,255,.07),var(--panel-2));
+    border:1px solid var(--line-2);border-radius:7px;
+    font-size:14.5px;color:var(--txt);
+  }
+  ul.pts li::before{
+    content:"▹";position:absolute;left:15px;top:12px;color:var(--accent);font-size:14px;
+  }
+
+  /* tip / callout */
+  .callout{
+    margin-top:24px;padding:16px 18px;border-radius:7px;font-size:14px;color:var(--txt);
+    background:rgba(255,206,92,.06);border:1px solid rgba(255,206,92,.25);border-left:3px solid var(--gold);
+  }
+  .callout .ico{font-family:var(--mono);color:var(--gold);font-weight:700;margin-right:8px}
+
+  /* image placeholder */
+  figure.shot{margin:26px 0}
+  .img-frame{
+    border:1px dashed var(--line-2);border-radius:10px;overflow:hidden;
+    background:repeating-linear-gradient(45deg,rgba(57,160,255,.03) 0 14px,transparent 14px 28px),var(--panel-2);
+    display:grid;place-items:center;min-height:200px;padding:14px;
+  }
+  .img-frame img{max-width:100%;height:auto;display:block;border-radius:6px}
+  .img-frame .ph{
+    text-align:center;color:var(--txt-faint);font-family:var(--mono);font-size:12px;letter-spacing:1px;
+  }
+  .img-frame .ph .ico{display:block;font-size:26px;color:var(--accent);margin-bottom:8px;opacity:.6}
+  figure.shot figcaption{
+    margin-top:12px;text-align:center;font-family:var(--sans);font-size:13.5px;
+    color:var(--accent);font-weight:500;
+  }
+
+  /* example table */
+  .ex-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13.5px}
+  .ex-table th,.ex-table td{border:1px solid var(--line);padding:12px 14px;vertical-align:top;text-align:left}
+  .ex-table thead th{
+    background:var(--panel-2);font-family:var(--mono);font-size:11px;letter-spacing:1px;
+    color:var(--accent);text-transform:uppercase;font-weight:500;
+  }
+  .ex-table td:first-child{
+    font-weight:700;color:var(--txt);white-space:nowrap;
+  }
+  .ex-table td{color:var(--txt-dim)}
+  .ex-table tbody tr:hover{background:rgba(57,160,255,.04)}
+
+  /* footer review block */
+  .review{
+    margin:60px 0 40px;border:1px solid var(--line-2);border-radius:12px;overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  }
+  .review .closing{
+    padding:30px 30px 26px;font-size:15px;color:var(--txt-dim);
+  }
+  .review .closing .quote-bar{border-left:3px solid var(--accent);padding-left:18px}
+  .review h3{
+    font-family:var(--mono);font-size:13px;letter-spacing:3px;color:var(--accent);
+    padding:24px 30px 0;text-transform:uppercase;display:flex;align-items:center;gap:10px;
+  }
+  .review h3::before{content:"▣"}
+  .proc{padding:18px 30px 30px;display:grid;gap:16px}
+  .track{
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel-2);
+  }
+  .track-hd{
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--accent-2);
+    padding:12px 18px;border-bottom:1px solid var(--line);text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+  }
+  .track-hd .tk{
+    background:var(--accent-2);color:#031018;font-weight:700;border-radius:4px;
+    padding:2px 8px;letter-spacing:1px;
+  }
+  ol.proc-steps{list-style:none;counter-reset:s;padding:14px 18px;display:grid;gap:10px}
+  ol.proc-steps li{
+    position:relative;padding:12px 14px 12px 42px;font-size:14.5px;color:var(--txt);
+    background:var(--panel);border:1px solid var(--line);border-radius:7px;line-height:1.55;
+  }
+  ol.proc-steps li::before{
+    counter-increment:s;content:counter(s);
+    position:absolute;left:12px;top:12px;width:20px;height:20px;border-radius:5px;
+    background:var(--accent-2);color:#031018;font-size:11px;font-weight:700;
+    display:grid;place-items:center;font-family:var(--mono);
+  }
+  .proc-steps li .note{display:block;margin-top:5px;font-size:12.5px;color:var(--txt-dim)}
+  .proc-steps li .mail{color:var(--accent);font-family:var(--mono);font-size:12.5px;word-break:break-all}
+  .proc-steps li .subj{color:var(--gold)}
+  .deadline-bar{
+    margin:2px 30px 30px;padding:14px 18px;border-radius:8px;
+    background:rgba(255,93,108,.08);border:1px solid rgba(255,93,108,.3);border-left:3px solid var(--warn);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--txt);
+  }
+  .deadline-bar .due{font-family:var(--mono);font-size:12px;color:var(--warn);font-weight:700;letter-spacing:1px}
+  .deadline-bar .mail{color:var(--accent);font-family:var(--mono);font-size:12.5px;word-break:break-all}
+
+  /* nav buttons */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:30px 0 70px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--panel);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  @media(max-width:640px){
+    .acc-head{gap:12px;padding:18px}
+    .acc-title{font-size:16px}
+    .ex-table td:first-child{white-space:normal}
+    .review .closing{padding-left:20px;padding-right:20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/">← MISSION HOME</a></nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="step-tag"><span class="num">STEP 02</span> DATA MAP</span>
+    <h1>Data Map</h1>
+    <div class="sub">데이터 맵 구성 · WHAT TO COLLECT, ANALYZE & DERIVE</div>
+    <div class="intro">
+      이번에는 데이터 맵을 구성해보도록 하겠습니다. 데이터 맵은 데이터 분석 및 서비스 기획을 수행함에 있어, 어떤 데이터를 수집할 지, 어떤 데이터로 분석할지, 파생변수는 어떻게 만들지를 결정하는 단계입니다.
+      실무에서는 분석을 수행할 데이터가 실제로 있다고 하더라도, 이 데이터 맵을 정리하는 작업을 수행합니다.
+      프로젝트의 기간에 따라 프로젝트 참여 인원이 달라질 수 있고, 인수인계를 하거나, 서비스 기획의 경우, 개발자가 해당 분석 내용을 확인할 때, 어떤 데이터로 분석을 수행했는지 명확히 작성되어 있어야 합니다.
+      아래 항목들을 확인하면서 데이터맵을 작성해보세요.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="accordion">
+
+    <!-- 01 특성 요인도 -->
+    <div class="acc-item open">
+      <button class="acc-head" aria-expanded="true">
+        <span class="acc-idx">01</span>
+        <span class="acc-title">특성 요인도 (Fish Bone Chart)<span class="acc-sub">CAUSE & EFFECT DIAGRAM</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            먼저 기업에서 데이터를 구성하기 전, 어떤 데이터를 수집/구성해야 할 지 결정해야 합니다. 기업에서는 데이터가 없는 경우, 또는 외부 데이터를 추가로 수집하는 경우, <strong>“특성 요인도 (Fish Bone Chart)”</strong>라는 표를 작성해 데이터를 수집합니다. 특성 요인도는 문제의 원인을 시각적으로 분석하여 이해하고, 그 원인을 이해하고 해결책을 찾는 기법입니다.
+            제조/공정에서 사용하기 시작해, 현재는 마케팅이나 CRM과 같은 다양한 분야에서 데이터를 수집하고 정의하는 단계에서 사용합니다. 어골도(생선의 뼈 모양)라고 불리는 특성 요인도는 데이터 구조화의 마인드 맵과 같습니다. 생선 머리엔 우리가 달성하고자 하는 목적(목표)를 작성하고, 큰 줄기에 각각의 핵심 요소들을 작성하여 가지를 뻗어나가는 형태로 작성합니다. 아래 특성 요인도의 예시를 보면 더 이해하기 쉽습니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step02_image1.png" alt="특성 요인도 예시"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step02_image1.png</div>
+            </div>
+          </figure>
+
+          <p class="lead">
+            빨간색 네모난 부분엔 비즈니스 시나리오를 기반으로 설정한 목적(또는 목표)가 들어갑니다. 그리고 큰 생선 뼈 줄기를 따라, 크게 나눠진 줄기(파란색 네모난 부분)엔 해당 목표를 달성하기 위해, 고려해야 할 핵심 요소가 들어갑니다. 이 핵심 요소는 산업 별로 정해져 있으나, 비즈니스 상황과 자사의 환경에 맞게 바꿀 수 있습니다.
+            마지막으로 큰 줄기에 매달린 잎 (갈색 네모난 부분)엔 비즈니스 목표를 달성함에 있어, 핵심 요소를 구성하는 데이터들을 작성해 줍니다. 실제 자사가 확보한 데이터를 작성해도 되고, 아직 확보되거나 구체적이지는 않지만, 핵심 요소에 꼭 필요한 데이터 까지 모두 작성해 줍니다.
+            서비스 산업에서는 주로 6P, 6가지 요소를 중점으로 어떤 데이터를 수집할지 파악합니다. 만약, 서비스업에서 6P라고 한다면, 각 요소들에서 얻거나 확인해야 할 데이터를 모두 도출해 내는 것입니다. (Process 과정 / Place 장소 / People 사람 / Plant 시설 / Policy 정책 / Product 제품 또는 서비스) 회의를 통해, 비즈니스 목적/목표를 달성하기 위해 고려 해야 할 주요 인자들을 작성해 보세요.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step02_image2.png" alt="제조 공정 QCD 관점 특성 요인도"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step02_image2.png</div>
+            </div>
+            <figcaption>▲ 제조 공정 QCD(품질, 비용, 납기)관점에서 특성 요인도</figcaption>
+          </figure>
+
+          <p class="lead">
+            아래의 표는, 각 도메인 별로 특성 요인도를 어떤 식으로 정리하는 지 정리해 놓았습니다.
+          </p>
+
+          <table class="ex-table">
+            <thead>
+              <tr><th>분야 / 목적</th><th>주된 Fishbone 분류 체계</th><th>주요 항목 예시</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>제조업</td><td>4M / 5M / 6M / 8M</td><td>Man, Machine, Material, Method, Measurement, Mother Nature 등</td></tr>
+              <tr><td>서비스업</td><td>4S / 8P</td><td>Surroundings, Suppliers, Systems, Skill, 또는 Product, Price 등</td></tr>
+              <tr><td>의료/병원</td><td>6요소 모델</td><td>People, Equipment, Materials, Process, Environment, Management</td></tr>
+              <tr><td>기계 정밀도</td><td>5M + 환경 기반</td><td>Man, Methods, Machines, Materials, Environment</td></tr>
+            </tbody>
+          </table>
+
+          <p class="lead" style="margin-top:24px">
+            이 특성 요인도는 비즈니스 상황과 현재 기업이 조사한 내용 및 배경을 바탕으로, 팀원들이 모여 작성하는 것이므로, 실제로 데이터 수집으로 연결 되지 않을 수 있습니다. 그럼 이것을 실제 데이터로 수집할 수 있는 단계까지 가져가야겠죠?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 데이터 수집성 평가표 -->
+    <div class="acc-item">
+      <button class="acc-head" aria-expanded="false">
+        <span class="acc-idx">02</span>
+        <span class="acc-title">데이터 수집성 평가표<span class="acc-sub">DATA COLLECTABILITY & IMPORTANCE MATRIX</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            앞서 특성 요인도에서 작성된 모든 인자를 데이터로 모두 수집할 수 있다면 좋지만, 실제로는 그렇지 않을 때가 많습니다. 또한 특성 요인도 작성 단계에서 작성은 되었으나, 목적을 달성하기에는 그 중요도가 낮은 인자들도 존재합니다.
+            이 모든 데이터를 다 수집/구조화 할 수 없기에, 현장에서는 이를 평가하고 우선순위를 매겨 데이터를 관리합니다. 이를 <strong>“데이터 수집성 평가표 (또는 요인 중요도)”</strong>라고 부릅니다.
+            이 표는 특성 요인도에서 얻은 각 인자들을 수집 가능성(실제로 수집이 가능한 데이터인가?)과 분석 중요도(분석 및 서비스에 있어 얼마나 중요도를 갖는가?)라는 두 지표로 평가 합니다. 아래의 예시를 보시면 쉽게 이해할 수 있습니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step02_image3.png" alt="데이터 수집성 평가표 예시"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step02_image3.png</div>
+            </div>
+          </figure>
+
+          <p class="lead">
+            특이한 점은, 위의 점수들이 1,3,9점 중에 하나로 매겨져 있는 것입니다. 이유는 데이터 수집/구조화에 있어, 변별하기 위함 입니다. 해당 점수는 각 팀원들이 점수를 모아 취합하여 최종 점수를 계산한 뒤, 최종 점수가 높은 데이터부터 수집 및 구조화를 수행합니다. 또는 기준 점수를 결정하여, 해당 점수 이상인 데이터에 대해 선별할 수 있습니다.
+            실제로는 굉장히 많은 인자들이 작성 되겠지요? 그러기에, 실제로 비즈니스 레포트나 발표용 자료엔 중요한 인자들만 위의 표처럼 간단하게 정리하고, 내부적으로는 프로젝트에 의해 고려된 모든 인자들에 대해 특성 요인도와 수집 평가표를 작성하여 팀원들 간 공유하면 됩니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 변수 정의서 -->
+    <div class="acc-item">
+      <button class="acc-head" aria-expanded="false">
+        <span class="acc-idx">03</span>
+        <span class="acc-title">변수 정의서 (Data Dictionary)<span class="acc-sub">VARIABLE DEFINITION DOCUMENT</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            앞서 수집 평가표에서 최종점수가 높은 인자들이 나열되고, 특정 점수 이상 넘는 인자에 대해 선별이 되면, 해당 인자들을 하나의 데이터 테이블 (또는 데이터 베이스)에 구조화 해야 합니다. 스키마, DB 설계서를 작성하기 전, 우리가 사용할 데이터를 정리하는 마지막 문서인데요. 바로 변수 정의서 입니다. Variable Definition Document라고 부르는 이 문서는 데이터를 인자(데이터 명), 타입(데이터 타입), 설명(데이터의 단위 또는 부가 설명)으로 나누어 정리합니다. 해당 자료를 사전에 작성하는 이유는, 팀원들 간 협업 또는 팀 간 협업에 있어, 서로가 생각하는 데이터를 같은 표현으로 소통하기 위함입니다. 가령 고객을 관리하는 CRM 시스템의 경우, “연령”이라는 데이터가 고객을 관리하는 직원의 연령인지, 고객의 연령인지 알 수 없습니다. 또 고객이 가입할 시점에서 연령인지, 현재 연도를 기준으로 계산된 연령인지도 헛깔릴 수 있습니다. 이는 DB 설계 단계 이전에 데이터를 명확히 정의하고, 데이터를 분석하여 표현하는 단계에서도 매우 치명적일 수 있습니다. 따라서 아래의 표와 같이 변수 정의서를 작성하여, 팀 간 협업에 있어 원활한 소통을 수행할 수 있습니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step02_image4.png" alt="금융 서비스 기획 변수 정의서"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step02_image4.png</div>
+            </div>
+            <figcaption>▲ 금융 서비스 기획에서 변수 정의서</figcaption>
+          </figure>
+
+          <p class="lead">
+            위의 표와 같이, 변수 정의서 차트가 여러 개로 되어 있는 것을 볼 수 있습니다. 여기서는 데이터 분석에 초점을 맞춰 테이블 별로 나눠 작성하였습니다. 실제 운영되고 있는 서비스에서 나온 데이터를 변수 정의서로 작성할 땐, DB설계서의 스키마 테이블 별로 정리할 수 있습니다. 데이터가 만약 수집된 상태라면, 수집된 데이터의 행의 개수와 열의 개수도 테이블 별로 작성해 놓아야 합니다. 이는 추후 데이터 분석을 수행함에 있어, 데이터의 행,열 수에 따라 분석 기법이 달라 질 수 있기 때문입니다.
+            타입에는 DB설계서와는 다르게, 연속형/범주형/날짜/ID(고유값) 형식으로 간단하게 정리되어 있습니다. 이를 더욱 구체화하여 컴퓨터에 표현될 형태로 정리할 때, 스키마에서는 더 디테일하게 자료형으로 나눠집니다. (Integer, float, string, object 등으로 표현) 이 단계에서는 간단하게 정리하는 이유는, 역시 팀 간, 부서 간 원할한 소통때문입니다. 같은 데이터라 하더라도 다른 서비스에서 데이터가 올라갈 때, 스키마 상 자료형은 달라질 수 있으므로, 변수 정의서에는 크게 숫자/문자/날짜/ID(고유값) 으로 분류를 해 놓습니다. 타입은 데이터 분석 기법을 선택할 때, 매우 중요하게 사용될 자료 이므로, 간단하게 작성하되, 절대 빼놓지는 말아야 합니다.
+            데이터 분석 관점에서는 기존에 정리해 놓은 변수 정의서에서 새로 “파생 변수”를 만들어 작성해 놓는 경우도 있습니다. 파생변수는 말 그대로, 기존에 수집 또는 구조화한 데이터에서 수식이나 데이터 간 연산을 통해 얻은 데이터로, 기존의 데이터로 부터, 디테일한 분석, 지표 관리 및 표현을 수행하기 위해 새로 만드는 변수라고 생각하면 쉽습니다. 파생 변수의 경우, 기존에 확보한 데이터를 기반으로 만든 변수이지만, 해당 변수를 사용하기 위한 목적에 따라 의미나 타입이 달라질 수 있으므로, 변수 정의서에 같이 작성합니다. 간단한 예로, “고객의 연령”이라는 데이터는 연속형(숫자) 데이터 입니다. 그러나 그래프로 표현을 하거나, 가설 검정을 수행할 때, 이 데이터를 연령대(문자)로 묶어 다른 형태의 분석 기법을 사용할 수 있습니다. 그럼 연령대(문자)는 기존에는 없었으나, 데이터 처리를 통해 얻을 수 있는 “파생변수”가 되는 것 입니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step02_image5.png" alt="유통 서비스 파생변수 정의서"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step02_image5.png</div>
+            </div>
+            <figcaption>▲ 유통 관련 서비스 기획에서 얻은 변수 정의서의 파생변수 정의서</figcaption>
+          </figure>
+
+          <p class="lead">
+            이제 변수 정의서까지 작성이 되었다면, DB설계서와 스키마 작성, 플로우 차트 구성, 데이터 분석 전 데이터를 구조화하는 작업을 문서화 해놓았다고 보시면 되겠습니다. 이제 변수 정의서를 바탕으로 데이터 분석가는 분석을, 엔지니어는 스키마 설계를, 서비스 개발자는 플로우 차트 구성 및 화면 기능 설계를 수행하면 됩니다. 같은 변수 정의서를 기반으로 설계를 수행하면, 부서 간 협업에 있어 큰 소요를 줄일 수 있고, 특정 시스템이나 설계를 보완 및 수정할 때도 매우 용이합니다.
+            보통 변수 정의서는 구글 시트나 ERD에서 사용하는 공용 프레드 시트에 정리를 합니다. 특성 요인도와 데이터 수집성 평가표는 변수 정의서를 작성하기 위한 준비 단계로 생각하시면 됩니다. 따라서 기획자들이 특성요인도 및 데이터 수집성 평가표를 작성하면, 분석가나 엔지니어가 수집 및 구조화가 가능한 데이터들을 정리하고, 이를 문서화하여 변수 정의서로 관리합니다. 관리하는 시스템의 규모가 클 경우, 변수 정의서는 여러 페이지, 수십, 수백장이 나올 수 있습니다. 추후에는 직급에 따라 접근 권한을 달리두어, 사내에서 관리하는 데이터에 변수 정의서와 특정 부서에서 운영하는 서비스의 변수 정의서를 분리하여 관리하기도 합니다. 이런 부분들을 고려하여, 앞서 주어진 비즈니스 시나리오를 기반으로 특성 요인도, 데이터 수집성 평가표, 변수 정의서를 작성하여 데이터를 관리해 봅시다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step02_image6.png" alt="간편식 공장 관리 시스템 변수 정의서"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step02_image6.png</div>
+            </div>
+            <figcaption>▲ 간편식 공장 관리 시스템 설계를 위한 변수 정의서</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 하단 리뷰 -->
+  <section class="review">
+    <div class="closing">
+      <div class="quote-bar">
+        특성 요인도 → 데이터 수집성 평가표 → 변수 정의서 순으로,<br>
+        무엇을 수집하고 분석하며 어떤 파생변수를 만들지 정리해 나갑니다.<br>
+        앞서 선정한 비즈니스 시나리오를 기반으로 세 가지 문서를 작성하여<br>
+        팀의 데이터 맵을 완성해 주세요!
+      </div>
+    </div>
+    <h3>Process Review</h3>
+    <div class="proc">
+      <div class="track">
+        <div class="track-hd"><span class="tk">TEAM</span> 과제 제출</div>
+        <ol class="proc-steps">
+          <li>앞부분 보완 + 데이터 분석 계획 수립 까지 PPT 작성 및 제출</li>
+          <li>
+            PPT를 메일로 팀장이 팀 제출
+            <span class="note">↳ <span class="mail">data.station.project@gmail.com</span></span>
+            <span class="note">↳ 메일 제목 : <span class="subj">“[DSA 프로젝트 00기] 팀명_과제명”</span></span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="track">
+        <div class="track-hd"><span class="tk">STUDY</span> 팀 스터디</div>
+        <ol class="proc-steps">
+          <li>팀 스터디 진행 (과제 명 / 과제 정의 단계 수행)</li>
+          <li>
+            Q&amp;A 를 모아 멘토에게 제출
+            <span class="note">↳ <span class="mail">data.station.project@gmail.com</span></span>
+            <span class="note">↳ 메일 제목 : <span class="subj">“[DSA 프로젝트 00기] 팀명 Q&amp;A”</span></span>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="deadline-bar">
+      <span class="due">DEADLINE</span>
+      <span>해당 주 토요일 23시 59분까지</span>
+      <span class="mail">/ data.station.project@gmail.com 로 제출</span>
+    </div>
+  </section>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step01.html">← STEP 01 · 과제 정의</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step03.html">STEP 03 · 데이터 분석 →</a>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('.acc-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.acc-item');
+      var body=item.querySelector('.acc-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+  window.addEventListener('load',function(){
+    var first=document.querySelector('.acc-item.open .acc-body');
+    if(first){first.style.maxHeight=first.scrollHeight+'px';}
+  });
+  // 이미지 로드 후 열려있는 토글 높이 재계산 (내용 잘림 방지)
+  document.querySelectorAll('.acc-body img').forEach(function(img){
+    img.addEventListener('load',function(){
+      var body=img.closest('.acc-body');
+      if(body && body.closest('.acc-item').classList.contains('open')){
+        body.style.maxHeight=body.scrollHeight+'px';
+      }
+    });
+  });
+</script>
+</body>
+</html>
