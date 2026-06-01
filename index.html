@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;
+    --bg-elev:#0e0e11;
+    --bg-card:#121216;
+    --line:#26262d;
+    --line-soft:#1a1a1f;
+    --txt:#f2f2f4;
+    --txt-dim:#9a9aa6;
+    --txt-faint:#5a5a64;
+    --accent:#00e5a0;
+    --accent-dim:#0a9c6e;
+    --accent-glow:rgba(0,229,160,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background:
+      radial-gradient( circle at 18% 12%, var(--accent-glow), transparent 38%),
+      radial-gradient(circle at 85% 88%, rgba(0,229,160,.06), transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+    background-image:linear-gradient(var(--txt) 1px,transparent 1px),linear-gradient(90deg,var(--txt) 1px,transparent 1px);
+    background-size:46px 46px;
+  }
+  .wrap{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:0 24px}
+
+  /* ===== HEADER ===== */
+  header{padding:72px 0 40px;text-align:center}
+  .logo{
+    width:104px;height:104px;margin:0 auto 30px;
+    border:1px solid var(--line);
+    border-radius:22px;
+    background:var(--bg-card);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,229,160,.08), 0 24px 60px rgba(0,0,0,.6);
+    position:relative;
+  }
+  .logo img{width:100%;height:100%;object-fit:contain}
+  .logo .fallback{
+    font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:2px;
+    color:var(--accent);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:4px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px;
+  }
+  h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(54px,9vw,104px);
+    line-height:.92;letter-spacing:3px;
+    background:linear-gradient(180deg,#fff 0%,#7a7a84 100%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .rule{
+    width:60px;height:2px;background:var(--accent);
+    margin:30px auto 0;border-radius:2px;
+  }
+
+  /* ===== INTRO ===== */
+  .intro{
+    margin:48px 0 70px;
+    background:var(--bg-card);
+    border:1px solid var(--line-soft);
+    border-left:3px solid var(--accent);
+    border-radius:14px;
+    padding:34px 38px;
+  }
+  .intro p{color:var(--txt-dim);font-size:16px;font-weight:300}
+  .intro p strong{color:var(--txt);font-weight:500}
+  .intro .tag{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:2px;color:var(--accent);
+    border:1px solid var(--accent-dim);
+    padding:4px 12px;border-radius:20px;margin-bottom:18px;
+  }
+
+  /* ===== MISSION ===== */
+  .section-head{margin-bottom:34px}
+  .section-head .num{
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    letter-spacing:3px;color:var(--txt-faint);
+  }
+  .section-head h2{
+    font-family:'Bebas Neue',sans-serif;font-size:38px;
+    letter-spacing:2px;margin-top:6px;
+  }
+  .section-head .sub{color:var(--txt-faint);font-size:14px;font-weight:300;margin-top:4px}
+
+  .steps{display:flex;flex-direction:column;gap:0;position:relative}
+  .steps::before{
+    content:"";position:absolute;left:31px;top:42px;bottom:42px;width:1px;
+    background:linear-gradient(180deg,var(--accent-dim),var(--line-soft));
+  }
+  .step{
+    display:flex;gap:24px;align-items:stretch;
+    text-decoration:none;color:inherit;
+    padding:8px 0;position:relative;
+  }
+  .step-node{
+    flex:0 0 64px;display:flex;justify-content:center;padding-top:22px;
+  }
+  .step-node .dot{
+    width:64px;height:64px;border-radius:50%;
+    background:var(--bg-elev);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--txt-dim);
+    transition:all .3s ease;position:relative;z-index:2;
+  }
+  .step-body{
+    flex:1;
+    background:var(--bg-card);border:1px solid var(--line-soft);
+    border-radius:14px;padding:22px 26px;margin:8px 0;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    transition:all .3s ease;
+  }
+  .step-body .label{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:2px;color:var(--txt-faint);margin-bottom:6px;text-transform:uppercase;
+  }
+  .step-body h3{font-size:21px;font-weight:700;letter-spacing:-.3px}
+  .step-body .arrow{
+    font-family:'JetBrains Mono',monospace;color:var(--txt-faint);
+    font-size:22px;transition:all .3s ease;flex:0 0 auto;
+  }
+  .step:hover .dot{
+    background:var(--accent);color:#04130d;border-color:var(--accent);
+    box-shadow:0 0 0 6px var(--accent-glow);transform:scale(1.05);
+  }
+  .step:hover .step-body{
+    border-color:var(--accent-dim);
+    transform:translateX(6px);
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+  }
+  .step:hover .arrow{color:var(--accent);transform:translateX(4px)}
+  .step:hover h3{color:var(--accent)}
+
+  /* ===== FOOTER ===== */
+  footer{
+    margin:80px 0 50px;padding-top:30px;
+    border-top:1px solid var(--line-soft);
+    text-align:center;
+  }
+  footer .brand{
+    font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--txt-dim);
+  }
+  footer p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt-faint);letter-spacing:1px;margin-top:6px}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:600px){
+    .intro{padding:26px 22px}
+    .step-node{flex:0 0 52px}
+    .steps::before{left:25px}
+    .step-node .dot{width:52px;height:52px;font-size:24px}
+    .step-body{padding:18px 20px}
+    .step-body h3{font-size:17px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo reveal">
+      <img src="image/logo.png" alt="Logo" onerror="this.style.display='none';this.parentNode.querySelector('.fallback').style.display='flex'">
+      <span class="fallback" style="display:none">DSA</span>
+    </div>
+    <div class="eyebrow reveal">Data Science Academy</div>
+    <h1 class="reveal">DSA Team<br>Project</h1>
+    <div class="rule reveal"></div>
+  </header>
+
+  <section class="intro reveal">
+    <span class="tag">MISSION BRIEFING</span>
+    <p>이제부터 본격적인 팀 프로젝트입니다. 각자 DSA 강의의 진도와 상관없이, 모두 참여해 팀 프로젝트를 수행하게 됩니다. 팀 프로젝트는 IT 기술, Python 스킬이 얼마나 높냐의 문제가 아닙니다. <strong>기획적인 부분, 비즈니스 인사이트를 찾는 부분</strong> 등 여러 다양한 역량과 팀워크가 요구됩니다. 데이터 분석 영역에서 가장 중요한 모든 역량을 <strong>(IT + 통계 + 비즈니스)</strong> 발휘해야만 합니다. 전공자/비전공자 상관없이, 적극적으로 팀프로젝트에 참여해, 여러분들만의 가치있는 프로젝트를 완성해 보세요. 선택한 주제에 대한 비즈니스 시나리오를 받게 되면, 아래의 미션을 차근차근 팀 끼리 수행해가시면 됩니다.</p>
+  </section>
+
+  <div class="section-head reveal">
+    <div class="num">// WORKFLOW</div>
+    <h2>5 Steps Mission</h2>
+    <div class="sub">단계별로 차근차근 수행하세요 — 순서대로 진행됩니다.</div>
+  </div>
+
+  <nav class="steps">
+    <a class="step reveal" href="#" data-step="0">
+      <div class="step-node"><div class="dot">00</div></div>
+      <div class="step-body">
+        <div>
+          <div class="label">Step 00</div>
+          <h3>주제 선정</h3>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+    <a class="step reveal" href="#" data-step="1">
+      <div class="step-node"><div class="dot">01</div></div>
+      <div class="step-body">
+        <div>
+          <div class="label">Step 01</div>
+          <h3>과제정의</h3>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+    <a class="step reveal" href="#" data-step="2">
+      <div class="step-node"><div class="dot">02</div></div>
+      <div class="step-body">
+        <div>
+          <div class="label">Step 02</div>
+          <h3>데이터 맵 구성</h3>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+    <a class="step reveal" href="#" data-step="3">
+      <div class="step-node"><div class="dot">03</div></div>
+      <div class="step-body">
+        <div>
+          <div class="label">Step 03</div>
+          <h3>데이터 분석</h3>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+    <a class="step reveal" href="#" data-step="4">
+      <div class="step-node"><div class="dot">04</div></div>
+      <div class="step-body">
+        <div>
+          <div class="label">Step 04</div>
+          <h3>인사이트 도출 및 개선안 작성</h3>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+    <a class="step reveal" href="#" data-step="5">
+      <div class="step-node"><div class="dot">05</div></div>
+      <div class="step-body">
+        <div>
+          <div class="label">Step 05</div>
+          <h3>최종 발표</h3>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+  </nav>
+
+  <footer class="reveal">
+    <div class="brand">DSA TEAM PROJECT</div>
+    <p>IT &nbsp;+&nbsp; STATISTICS &nbsp;+&nbsp; BUSINESS</p>
+  </footer>
+
+</div>
+
+<script>
+  // 스크롤 리빌
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i*60)+'ms';
+    io.observe(el);
+  });
+
+  // 메뉴 URL 연결 지점 (배포 시 href 교체)
+  const links={
+    0:"step0.html", // 0. 주제 선정
+    1:"step1.html", // 1. 과제정의
+    2:"step2.html", // 2. 데이터 맵 구성
+    3:"step3.html", // 3. 데이터 분석
+    4:"step4.html", // 4. 인사이트 도출 및 개선안 작성
+    5:"step5.html"  // 5. 최종 발표
+  };
+  document.querySelectorAll('.step').forEach(a=>{
+    a.setAttribute('href',links[a.dataset.step]);
+  });
+</script>
+</body>
+</html>
