@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 04 · Data Insight & Improve — DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080d;
+    --bg-2:#0b0f17;
+    --panel:#0e131d;
+    --panel-2:#121826;
+    --line:#1d2636;
+    --line-2:#2a3852;
+    --txt:#dfe6f2;
+    --txt-dim:#8a99b3;
+    --txt-faint:#5b6a86;
+    --accent:#3ec5ff;
+    --accent-2:#2f7dff;
+    --warn:#ff5d6c;
+    --gold:#ffce5c;
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:var(--sans);
+    line-height:1.7;
+    background-image:
+      radial-gradient(circle at 15% 0%,rgba(57,160,255,.08),transparent 40%),
+      radial-gradient(circle at 85% 20%,rgba(57,160,255,.06),transparent 45%),
+      linear-gradient(rgba(29,38,54,.25) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(29,38,54,.25) 1px,transparent 1px);
+    background-size:auto,auto,42px 42px,42px 42px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+
+  /* ── top bar ── */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:rgba(6,8,13,.85);
+    backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar .wrap{display:flex;align-items:center;gap:14px;height:62px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px}
+  .brand .logo{
+    width:30px;height:30px;flex:0 0 30px;overflow:hidden;
+    display:grid;place-items:center;
+  }
+  .brand .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .brand small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--txt-dim)}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* ── hero / header ── */
+  header.hero{padding:64px 0 38px;border-bottom:1px solid var(--line)}
+  .step-tag{
+    font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent);
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .step-tag .num{
+    background:var(--accent);color:#04121b;font-weight:700;
+    padding:3px 9px;border-radius:5px;letter-spacing:1px;
+  }
+  header.hero h1{
+    font-size:clamp(34px,6vw,58px);font-weight:900;letter-spacing:-1px;line-height:1.05;
+    background:linear-gradient(120deg,#fff 30%,var(--accent) 120%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header.hero .sub{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;color:var(--txt-faint);
+    margin-top:14px;text-transform:uppercase;
+  }
+  .intro{
+    margin-top:30px;padding:24px 26px;border:1px solid var(--line);border-left:3px solid var(--accent-2);
+    background:linear-gradient(90deg,rgba(57,160,255,.06),transparent);border-radius:6px;
+    color:var(--txt-dim);font-size:15.5px;
+  }
+
+  /* ── accordion ── */
+  .accordion{margin:44px 0}
+  .acc-item{
+    border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;
+    background:var(--panel);transition:border-color .25s;
+  }
+  .acc-item.open{border-color:var(--line-2)}
+  .acc-head{
+    width:100%;text-align:left;cursor:pointer;border:0;background:transparent;color:var(--txt);
+    display:flex;align-items:center;gap:18px;padding:22px 24px;font-family:var(--sans);
+  }
+  .acc-head:hover{background:var(--panel-2)}
+  .acc-idx{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--line-2);border-radius:6px;padding:5px 10px;min-width:46px;text-align:center;
+  }
+  .acc-title{font-size:18px;font-weight:700;flex:1}
+  .acc-sub{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:2px;display:block;margin-top:3px;font-weight:400}
+  .chev{
+    width:22px;height:22px;flex-shrink:0;color:var(--txt-dim);transition:transform .3s;
+  }
+  .acc-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .acc-body{
+    max-height:0;overflow:hidden;transition:max-height .4s ease;
+    border-top:1px solid transparent;
+  }
+  .acc-item.open .acc-body{border-top-color:var(--line)}
+  .acc-inner{padding:26px 26px 30px}
+
+  /* content typography */
+  .lead{color:var(--txt-dim);font-size:15px;margin-bottom:22px}
+  .lead + .lead{margin-top:-6px}
+  .lead strong,.callout strong{color:var(--txt)}
+  .lead .hl{color:var(--accent);font-weight:700}
+
+  /* sub group title */
+  .group-title{
+    font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent);
+    margin:34px 0 16px;padding-bottom:8px;border-bottom:1px dashed var(--line-2);
+  }
+
+  /* image placeholder */
+  figure.shot{margin:26px 0}
+  .img-frame{
+    border:1px dashed var(--line-2);border-radius:10px;overflow:hidden;
+    background:repeating-linear-gradient(45deg,rgba(57,160,255,.03) 0 14px,transparent 14px 28px),var(--panel-2);
+    display:grid;place-items:center;min-height:200px;padding:14px;
+  }
+  .img-frame img{max-width:100%;height:auto;display:block;border-radius:6px}
+  .img-frame .ph{
+    text-align:center;color:var(--txt-faint);font-family:var(--mono);font-size:12px;letter-spacing:1px;
+  }
+  .img-frame .ph .ico{display:block;font-size:26px;color:var(--accent);margin-bottom:8px;opacity:.6}
+  figure.shot figcaption{
+    margin-top:12px;text-align:center;font-family:var(--sans);font-size:13.5px;
+    color:var(--accent);font-weight:500;
+  }
+
+  /* callout */
+  .callout{
+    margin-top:24px;padding:16px 18px;border-radius:7px;font-size:14px;color:var(--txt);
+    background:rgba(255,206,92,.06);border:1px solid rgba(255,206,92,.25);border-left:3px solid var(--gold);
+  }
+  .callout .ico{font-family:var(--mono);color:var(--gold);font-weight:700;margin-right:8px}
+
+  /* footer review block */
+  .review{
+    margin:60px 0 40px;border:1px solid var(--line-2);border-radius:12px;overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  }
+  .review .closing{
+    padding:30px 30px 26px;font-size:15px;color:var(--txt-dim);
+  }
+  .review .closing .quote-bar{border-left:3px solid var(--accent);padding-left:18px}
+
+  /* nav buttons */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:30px 0 70px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--panel);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  @media(max-width:640px){
+    .acc-head{gap:12px;padding:18px}
+    .acc-title{font-size:16px}
+    .review .closing{padding-left:20px;padding-right:20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/">← MISSION HOME</a></nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="step-tag"><span class="num">STEP 04</span> DATA INSIGHT &amp; IMPROVE</span>
+    <h1>Data Insight &amp; Improve</h1>
+    <div class="sub">인사이트 도출 및 개선안 작성 · FROM RESULT TO MESSAGE</div>
+    <div class="intro">
+      분석이 모두 완료되었다면, 분석 결과에서부터 Insight를 도출해야 합니다. Insight는 단순히 분석결과를 해석한 내용이 아닙니다.
+      분석 결과를 바탕으로 해석과 주장을 넣어 메시지를 만들고, 그 메시지를 현장에 적용 가능한 개선안으로 연결하는 단계입니다.
+      아래 항목을 따라 인사이트와 개선안을 작성해 봅시다.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="accordion">
+
+    <!-- 01 인사이트 도출 -->
+    <div class="acc-item open">
+      <button class="acc-head" aria-expanded="true">
+        <span class="acc-idx">01</span>
+        <span class="acc-title">인사이트 도출<span class="acc-sub">DERIVE INSIGHT</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            분석이 모두 완료되었다면, 분석 결과에서부터 Insight를 도출해야 합니다. Insight는 단순히 분석결과를 해석한 내용이 아닙니다. 분석 결과를 바탕으로, 해석과 주장을 넣어 메시지를 만들어야 합니다. 분석 내용만 해석하는 형태로 보고서가 작성되어 있다면, 프로젝트를 통해 분석가가 주장하고자 하는 바가 무엇인지 명확하게 알 수 없습니다. 여러분은 수 일 동안 분석을 수행하며 데이터를 보고, 보고서를 작성했지만, 여러분들의 자료를 보는 사람은 해당 자료를 처음 보는 사람들이기에, 단순하게 분석 결과를 써 놓는 것이 아닌, 명확한 Insight를 메시지 형태로(분석결과의 근거를 바탕으로 주장하는 바가 담긴 문장) 작성해야 합니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image1.png" alt="분석 결과에 Insight가 작성된 예시 1"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image1.png</div>
+            </div>
+            <figcaption>▲ 분석 결과에 Insight가 작성된 예시 (하이라이트 부분 확인)</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image2.png" alt="분석 결과에 Insight가 작성된 예시 2"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image2.png</div>
+            </div>
+            <figcaption>▲ 분석 결과에 Insight가 작성된 예시 2 (하이라이트 부분 확인)</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 개선안 작성 -->
+    <div class="acc-item">
+      <button class="acc-head" aria-expanded="false">
+        <span class="acc-idx">02</span>
+        <span class="acc-title">개선안 작성<span class="acc-sub">IMPROVEMENT PROPOSAL</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            그리고 인사이트가 도출되었다면, 개선안을 작성 할 차례입니다. 분석 결과로 얻어진 인사이트를 바탕으로 현장에서 적용 할 수 있는 구체적인 개선안을 제시해 봅시다. 개선안은 데이터 분석 결과와 앞서 추진 배경과 현황 파악 단계에서 공부한 도메인을 바탕으로, 여러분들이 비즈니스 인사이트를 이용해 어떤 부분을 어떻게 적용하면, 기업에 가치를 가져다 줄 것 인가에 대한 구체적인 내용을 작성하시면 됩니다. 개선안은 구체적이고 자세하게 쓰면 좋습니다. 대신 최대한 현실성 있게, 현장에 적용 가능하게 작성해야겠죠? 무엇보다 개선안을 실행했을 때, 앞서 세운 비즈니스 목표를 달성할 수 있는지 꼭 고려해보셔야 합니다. 앞서 설정한 비즈니스 목적과 목표를 달성할 수 있는 개선안을 근거자료(에비던스)와 함께 제안해보세요. 에비던스가 없다면, 아이콘이나 차트 같은 것을 사용하셔도 좋습니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image3.png" alt="개선안 작성 예시 1"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image3.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 1</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image4.png" alt="개선안 작성 예시 2"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image4.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 2</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image5.png" alt="개선안 작성 예시 3"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image5.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 3</figcaption>
+          </figure>
+
+          <p class="lead" style="margin-top:30px">
+            저희 DSA 프로젝트는 이 단계까지 구성하면 됩니다. 만약 '데이터 분석'을 넘어 '서비스 기획'까지 수행한다고 하면, 이 개선안 단계에서 유저페르소나 설정, 서비스 플로우 차트 구성, 화면 기능 설계서 구성 까지 진행하는 경우도 있습니다. 보통 이 단계에서 1,2주, 많게는 한달 이상 소요되기도 합니다. 데이터 분석 수행한 결과를 바탕으로 서비스 기획까지 이어서 하나의 프로젝트를 완성하게 되면, 이를 이용해 서비스가 개발되기 시작합니다. 각 회사마다, 부서마다 정해진 업무의 범위가 다르겠지만, 디지털 부서에서 분석과 서비스 기획을 같이하는 경우엔, 이러한 부분까지 포함된다는 것을 기억하시면 좋겠습니다.
+          </p>
+
+          <div class="callout">
+            <span class="ico">NOTE)</span>아래 예시 사례는 참조만 해보세요! (기회가 된다면 서비스 기획을 통해 개선안을 더 구체적으로 구성해 보세요!)
+          </div>
+
+          <div class="group-title">참고 · 서비스 기획 예시</div>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image6.png" alt="개선안 작성 예시 4 (서비스 기획)"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image6.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 4 (서비스 기획)</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image7.png" alt="개선안 작성 예시 5 (서비스 기획)"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image7.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 5 (서비스 기획)</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image8.png" alt="개선안 작성 예시 6 (서비스 기획)"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image8.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 6 (서비스 기획)</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step04_image9.png" alt="개선안 작성 예시 7 (서비스 기획)"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step04_image9.png</div>
+            </div>
+            <figcaption>▲ 개선안 작성 예시 7 (서비스 기획)</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 하단 리뷰 -->
+  <section class="review">
+    <div class="closing">
+      <div class="quote-bar">
+        분석 결과에서 메시지(Insight)를 도출하고,<br>
+        그 인사이트를 현장에 적용 가능한 구체적 개선안으로 연결하는 단계입니다.<br>
+        앞서 설정한 비즈니스 목적과 목표를 달성할 수 있는 개선안을<br>
+        근거자료와 함께 제안하며 프로젝트를 완성해 주세요!
+      </div>
+    </div>
+  </section>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step03.html">← STEP 03 · 데이터 분석</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step05.html">STEP 05 · 최종 발표 →</a>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('.acc-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.acc-item');
+      var body=item.querySelector('.acc-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+  window.addEventListener('load',function(){
+    var first=document.querySelector('.acc-item.open .acc-body');
+    if(first){first.style.maxHeight=first.scrollHeight+'px';}
+  });
+  // 이미지 로드 후 열려있는 토글 높이 재계산 (내용 잘림 방지)
+  document.querySelectorAll('.acc-body img').forEach(function(img){
+    img.addEventListener('load',function(){
+      var body=img.closest('.acc-body');
+      if(body && body.closest('.acc-item').classList.contains('open')){
+        body.style.maxHeight=body.scrollHeight+'px';
+      }
+    });
+  });
+</script>
+</body>
+</html>
