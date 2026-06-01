@@ -18,8 +18,8 @@
     --txt:#dfe6f2;
     --txt-dim:#8a99b3;
     --txt-faint:#5b6a86;
-    --accent:#3ef2c0;
-    --accent-2:#39a0ff;
+    --accent:#3ec5ff;
+    --accent-2:#2f7dff;
     --warn:#ff5d6c;
     --gold:#ffce5c;
     --mono:'JetBrains Mono',monospace;
@@ -34,7 +34,7 @@
     line-height:1.7;
     background-image:
       radial-gradient(circle at 15% 0%,rgba(57,160,255,.08),transparent 40%),
-      radial-gradient(circle at 85% 20%,rgba(62,242,192,.06),transparent 45%),
+      radial-gradient(circle at 85% 20%,rgba(57,160,255,.06),transparent 45%),
       linear-gradient(rgba(29,38,54,.25) 1px,transparent 1px),
       linear-gradient(90deg,rgba(29,38,54,.25) 1px,transparent 1px);
     background-size:auto,auto,42px 42px,42px 42px;
@@ -52,7 +52,7 @@
   .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px}
   .brand .logo{
     width:30px;height:30px;border-radius:7px;overflow:hidden;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    background:linear-gradient(135deg,var(--accent-2),var(--accent));
     display:grid;place-items:center;color:#04121b;font-size:14px;font-weight:700;
   }
   .brand .logo img{width:100%;height:100%;object-fit:contain;display:block}
@@ -126,8 +126,9 @@
   ul.pts{list-style:none;display:grid;gap:10px}
   ul.pts li{
     position:relative;padding:13px 16px 13px 40px;
-    background:var(--panel-2);border:1px solid var(--line);border-radius:7px;
-    font-size:14.5px;color:var(--txt-dim);
+    background:linear-gradient(90deg,rgba(57,160,255,.07),var(--panel-2));
+    border:1px solid var(--line-2);border-radius:7px;
+    font-size:14.5px;color:var(--txt);
   }
   ul.pts li::before{
     content:"▹";position:absolute;left:15px;top:12px;color:var(--accent);font-size:14px;
@@ -147,7 +148,7 @@
 
   /* tip / callout */
   .callout{
-    margin-top:24px;padding:16px 18px;border-radius:7px;font-size:14px;color:var(--txt-dim);
+    margin-top:24px;padding:16px 18px;border-radius:7px;font-size:14px;color:var(--txt);
     background:rgba(255,206,92,.06);border:1px solid rgba(255,206,92,.25);border-left:3px solid var(--gold);
   }
   .callout .ico{font-family:var(--mono);color:var(--gold);font-weight:700;margin-right:8px}
@@ -166,8 +167,8 @@
   .ex-table tr.worst td.tag{color:var(--warn)}
   .ex-table tr.best td.tag::after{content:" ✓"}
   .ex-table tr.worst td.tag::after{content:" ✕"}
-  .ex-table td.body{color:var(--txt-dim)}
-  .ex-table tr.worst td.body{color:var(--txt-faint)}
+  .ex-table td.body{color:var(--txt)}
+  .ex-table tr.worst td.body{color:var(--txt-dim)}
 
   /* footer review block */
   .review{
