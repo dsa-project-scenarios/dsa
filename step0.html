@@ -6,7 +6,7 @@
 <title>0. 주제 선정 | DSA Team Project</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#070708;
@@ -17,9 +17,9 @@
     --txt:#f2f2f4;
     --txt-dim:#9a9aa6;
     --txt-faint:#5a5a64;
-    --accent:#00e5a0;
-    --accent-dim:#0a9c6e;
-    --accent-glow:rgba(0,229,160,.15);
+    --accent:#2f9bff;
+    --accent-dim:#1e6fc4;
+    --accent-glow:rgba(47,155,255,.16);
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -35,7 +35,7 @@
     content:"";position:fixed;inset:0;
     background:
       radial-gradient(circle at 18% 12%, var(--accent-glow), transparent 38%),
-      radial-gradient(circle at 85% 88%, rgba(0,229,160,.06), transparent 45%);
+      radial-gradient(circle at 85% 88%, rgba(47,155,255,.06), transparent 45%);
     pointer-events:none;z-index:0;
   }
   body::after{
@@ -61,10 +61,10 @@
     text-transform:uppercase;color:var(--accent);margin-bottom:14px;
   }
   h1{
-    font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(46px,8vw,82px);line-height:.92;letter-spacing:3px;
-    background:linear-gradient(180deg,#fff 0%,#7a7a84 100%);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    font-family:'Archivo','Noto Sans KR',sans-serif;
+    font-weight:800;
+    font-size:clamp(40px,7vw,72px);line-height:.95;letter-spacing:-1px;
+    color:#ffffff;
   }
   .rule{width:60px;height:2px;background:var(--accent);margin:24px auto 0;border-radius:2px}
 
