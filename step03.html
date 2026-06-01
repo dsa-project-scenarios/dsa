@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 03 · Data Analysis — DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080d;
+    --bg-2:#0b0f17;
+    --panel:#0e131d;
+    --panel-2:#121826;
+    --line:#1d2636;
+    --line-2:#2a3852;
+    --txt:#dfe6f2;
+    --txt-dim:#8a99b3;
+    --txt-faint:#5b6a86;
+    --accent:#3ec5ff;
+    --accent-2:#2f7dff;
+    --warn:#ff5d6c;
+    --gold:#ffce5c;
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:var(--sans);
+    line-height:1.7;
+    background-image:
+      radial-gradient(circle at 15% 0%,rgba(57,160,255,.08),transparent 40%),
+      radial-gradient(circle at 85% 20%,rgba(57,160,255,.06),transparent 45%),
+      linear-gradient(rgba(29,38,54,.25) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(29,38,54,.25) 1px,transparent 1px);
+    background-size:auto,auto,42px 42px,42px 42px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px}
+
+  /* ── top bar ── */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:rgba(6,8,13,.85);
+    backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar .wrap{display:flex;align-items:center;gap:14px;height:62px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px}
+  .brand .logo{
+    width:30px;height:30px;flex:0 0 30px;overflow:hidden;
+    display:grid;place-items:center;
+  }
+  .brand .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .brand small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--txt-dim)}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* ── hero / header ── */
+  header.hero{padding:64px 0 38px;border-bottom:1px solid var(--line)}
+  .step-tag{
+    font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent);
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .step-tag .num{
+    background:var(--accent);color:#04121b;font-weight:700;
+    padding:3px 9px;border-radius:5px;letter-spacing:1px;
+  }
+  header.hero h1{
+    font-size:clamp(34px,6vw,58px);font-weight:900;letter-spacing:-1px;line-height:1.05;
+    background:linear-gradient(120deg,#fff 30%,var(--accent) 120%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header.hero .sub{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;color:var(--txt-faint);
+    margin-top:14px;text-transform:uppercase;
+  }
+  .intro{
+    margin-top:30px;padding:24px 26px;border:1px solid var(--line);border-left:3px solid var(--accent-2);
+    background:linear-gradient(90deg,rgba(57,160,255,.06),transparent);border-radius:6px;
+    color:var(--txt-dim);font-size:15.5px;
+  }
+
+  /* ── accordion ── */
+  .accordion{margin:44px 0}
+  .acc-item{
+    border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden;
+    background:var(--panel);transition:border-color .25s;
+  }
+  .acc-item.open{border-color:var(--line-2)}
+  .acc-head{
+    width:100%;text-align:left;cursor:pointer;border:0;background:transparent;color:var(--txt);
+    display:flex;align-items:center;gap:18px;padding:22px 24px;font-family:var(--sans);
+  }
+  .acc-head:hover{background:var(--panel-2)}
+  .acc-idx{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--line-2);border-radius:6px;padding:5px 10px;min-width:46px;text-align:center;
+  }
+  .acc-title{font-size:18px;font-weight:700;flex:1}
+  .acc-sub{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:2px;display:block;margin-top:3px;font-weight:400}
+  .chev{
+    width:22px;height:22px;flex-shrink:0;color:var(--txt-dim);transition:transform .3s;
+  }
+  .acc-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .acc-body{
+    max-height:0;overflow:hidden;transition:max-height .4s ease;
+    border-top:1px solid transparent;
+  }
+  .acc-item.open .acc-body{border-top-color:var(--line)}
+  .acc-inner{padding:26px 26px 30px}
+
+  /* content typography */
+  .lead{color:var(--txt-dim);font-size:15px;margin-bottom:22px}
+  .lead + .lead{margin-top:-6px}
+  .lead strong,.callout strong{color:var(--txt)}
+  .lead .hl{color:var(--accent);font-weight:700}
+
+  /* image placeholder */
+  figure.shot{margin:26px 0}
+  .img-frame{
+    border:1px dashed var(--line-2);border-radius:10px;overflow:hidden;
+    background:repeating-linear-gradient(45deg,rgba(57,160,255,.03) 0 14px,transparent 14px 28px),var(--panel-2);
+    display:grid;place-items:center;min-height:200px;padding:14px;
+  }
+  .img-frame img{max-width:100%;height:auto;display:block;border-radius:6px}
+  .img-frame .ph{
+    text-align:center;color:var(--txt-faint);font-family:var(--mono);font-size:12px;letter-spacing:1px;
+  }
+  .img-frame .ph .ico{display:block;font-size:26px;color:var(--accent);margin-bottom:8px;opacity:.6}
+  figure.shot figcaption{
+    margin-top:12px;text-align:center;font-family:var(--sans);font-size:13.5px;
+    color:var(--accent);font-weight:500;
+  }
+
+  /* footer review block */
+  .review{
+    margin:60px 0 40px;border:1px solid var(--line-2);border-radius:12px;overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  }
+  .review .closing{
+    padding:30px 30px 26px;font-size:15px;color:var(--txt-dim);
+  }
+  .review .closing .quote-bar{border-left:3px solid var(--accent);padding-left:18px}
+  .review h3{
+    font-family:var(--mono);font-size:13px;letter-spacing:3px;color:var(--accent);
+    padding:24px 30px 0;text-transform:uppercase;display:flex;align-items:center;gap:10px;
+  }
+  .review h3::before{content:"▣"}
+  .proc{padding:18px 30px 30px;display:grid;gap:16px}
+  .track{
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel-2);
+  }
+  .track-hd{
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--accent-2);
+    padding:12px 18px;border-bottom:1px solid var(--line);text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+  }
+  .track-hd .tk{
+    background:var(--accent-2);color:#031018;font-weight:700;border-radius:4px;
+    padding:2px 8px;letter-spacing:1px;
+  }
+  ol.proc-steps{list-style:none;counter-reset:s;padding:14px 18px;display:grid;gap:10px}
+  ol.proc-steps li{
+    position:relative;padding:12px 14px 12px 42px;font-size:14.5px;color:var(--txt);
+    background:var(--panel);border:1px solid var(--line);border-radius:7px;line-height:1.55;
+  }
+  ol.proc-steps li::before{
+    counter-increment:s;content:counter(s);
+    position:absolute;left:12px;top:12px;width:20px;height:20px;border-radius:5px;
+    background:var(--accent-2);color:#031018;font-size:11px;font-weight:700;
+    display:grid;place-items:center;font-family:var(--mono);
+  }
+  .proc-steps li .note{display:block;margin-top:5px;font-size:12.5px;color:var(--txt-dim)}
+  .proc-steps li .mail{color:var(--accent);font-family:var(--mono);font-size:12.5px;word-break:break-all}
+  .proc-steps li .subj{color:var(--gold)}
+  .deadline-bar{
+    margin:2px 30px 30px;padding:14px 18px;border-radius:8px;
+    background:rgba(255,93,108,.08);border:1px solid rgba(255,93,108,.3);border-left:3px solid var(--warn);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--txt);
+  }
+  .deadline-bar .due{font-family:var(--mono);font-size:12px;color:var(--warn);font-weight:700;letter-spacing:1px}
+  .deadline-bar .mail{color:var(--accent);font-family:var(--mono);font-size:12.5px;word-break:break-all}
+
+  /* nav buttons */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:30px 0 70px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--panel);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  @media(max-width:640px){
+    .acc-head{gap:12px;padding:18px}
+    .acc-title{font-size:16px}
+    .review .closing{padding-left:20px;padding-right:20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/">← MISSION HOME</a></nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="step-tag"><span class="num">STEP 03</span> DATA ANALYSIS</span>
+    <h1>Data Analysis</h1>
+    <div class="sub">데이터 분석 · PLAN, PREPROCESS & FIND INSIGHTS</div>
+    <div class="intro">
+      이제 정리된 데이터로 분석을 수행할 단계입니다. 데이터 맵에 구성 된 데이터를 활용해, 먼저 분석 계획서를 작성하고, 분석 계획서를 바탕으로 분석작업을 수행해보시면 됩니다.
+      분석을 수행하다보면, 당연히 인사이트가 도출되지 않아, 분석의 방향을 바꿔야하는 경우가 생길 수 밖에 없습니다. 그렇다면, 분석 이후에 다시 분석계획서를 수정하고, 다른 기법으로 분석을 수행해야겠죠?
+      복잡하지만 이런 절차를 계속 수행하는 이유는, 현장에 많은 사람들이 이 프로젝트에 참여하거나 모니터링 하고 있기 때문입니다. 아래의 프로세스를 보고, 데이터 분석을 수행해 봅시다.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="accordion">
+
+    <!-- 01 분석 계획서 작성 -->
+    <div class="acc-item open">
+      <button class="acc-head" aria-expanded="true">
+        <span class="acc-idx">01</span>
+        <span class="acc-title">분석 계획서 작성<span class="acc-sub">ANALYSIS PLANNING</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            변수정의서까지 작성이 다 되면, 분석계획서도 작성을 진행해 주세요. 분석을 수행하기 전, 어떻게 이 데이터로 분석 작업을 수행할 지, 미리 계획을 작성 해야 합니다. 물론 현장에서는, 바로 데이터를 분석하는 경우도 있지만, 보통 팀끼리 협업을 하거나, 데이터를 분석하는 과정에서는 이 “데이터 분석 계획서”가 반드시 있어야만, 프로젝트를 원활히 진행할 수 있습니다.
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step03_image1.png" alt="분석 계획서 작성 예시 1"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step03_image1.png</div>
+            </div>
+            <figcaption>▲ 분석 계획서 작성 예시 1</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step03_image2.png" alt="분석 계획서 작성 예시 2"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step03_image2.png</div>
+            </div>
+            <figcaption>▲ 분석 계획서 작성 예시 2</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 데이터 전처리 및 분석 수행 -->
+    <div class="acc-item">
+      <button class="acc-head" aria-expanded="false">
+        <span class="acc-idx">02</span>
+        <span class="acc-title">데이터 전처리 및 분석 수행<span class="acc-sub">PREPROCESSING & ANALYSIS</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <p class="lead">
+            그리고 데이터를 이용해, 분석에 용이하게 여러 전처리 작업을 수행해주세요. 특히 현장에서 발생한 진짜 데이터는 전처리 과정 없이 분석을 하게 되면 쉽게 인사이트를 찾기 어렵습니다. ‘층별화’를 통해, 다양한 범주 별로 데이터를 입체적으로 나누어 보셔야 합니다. 먼저 데이터의 구조와 타입을 빠르게 확인 후, 처리가 필요한 부분은 전처리를 해 나가며, 차근차근 인사이트를 얻어가는 작업을 해봅시다. 물론 ‘목표 변수’가 명확하게 설정 되어야겠지요?
+          </p>
+          <p class="lead">
+            또 분석 작업을 수행할 때, 유의 해야 할 점은 분석의 내용이 프로젝트 수행에 적합한 분석이 수행되어야 한다는 것입니다. 간혹 데이터 머신러닝 기법이나 모델링 기법에 치우쳐서 프로젝트 주제에 맞게 인사이트를 도출할 수 있는 시각화 및 가설검정 기법들을 건너뛰곤 합니다. 앞서 프로젝트 배경 및 현황을 구성했던 것 처럼, 우리가 현장에서는 논리를 통해 분석이 수행되어야 하고, 분석에도 앞서 구성된 논리에 맞는 결과들이 나와야합니다. 모델링 기법을 시도해보는 것도 좋겠지만, 현장에서의 우선순위는 프로젝트 논리를 바탕으로 인사이트를 도출하는 것에 있다는 것을 절대 잊지 마세요!
+          </p>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step03_image3.png" alt="분석 결과 예시 1"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step03_image3.png</div>
+            </div>
+            <figcaption>▲ 분석 결과 예시 1</figcaption>
+          </figure>
+
+          <figure class="shot">
+            <div class="img-frame">
+              <img src="https://dsa-project-scenarios.github.io/dsa/image/step03_image4.png" alt="분석 결과 예시 2"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="ph" style="display:none"><span class="ico">▤</span>step03_image4.png</div>
+            </div>
+            <figcaption>▲ 분석 결과 예시 2</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 하단 리뷰 -->
+  <section class="review">
+    <div class="closing">
+      <div class="quote-bar">
+        분석 계획서 작성 → 전처리 → 분석 수행의 과정을 반복하며,<br>
+        프로젝트 논리에 맞는 인사이트를 차근차근 도출해 나가는 단계입니다.<br>
+        모델링에 치우치지 말고, 프로젝트 주제에 맞는 분석을<br>
+        우선순위에 두고 진행해 주세요!
+      </div>
+    </div>
+    <h3>Process Review</h3>
+    <div class="proc">
+      <div class="track">
+        <div class="track-hd"><span class="tk">TEAM</span> 과제 제출</div>
+        <ol class="proc-steps">
+          <li>앞부분 보완 + 데이터 분석 계획 수립 까지 PPT 작성 및 제출</li>
+          <li>
+            PPT를 메일로 팀장이 팀 제출
+            <span class="note">↳ <span class="mail">data.station.project@gmail.com</span></span>
+            <span class="note">↳ 메일 제목 : <span class="subj">“[DSA 프로젝트 00기] 팀명_과제명”</span></span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="track">
+        <div class="track-hd"><span class="tk">STUDY</span> 팀 스터디</div>
+        <ol class="proc-steps">
+          <li>팀 스터디 진행 (과제 명 / 과제 정의 단계 수행)</li>
+          <li>
+            Q&amp;A 를 모아 멘토에게 제출
+            <span class="note">↳ <span class="mail">data.station.project@gmail.com</span></span>
+            <span class="note">↳ 메일 제목 : <span class="subj">“[DSA 프로젝트 00기] 팀명 Q&amp;A”</span></span>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="deadline-bar">
+      <span class="due">DEADLINE</span>
+      <span>차주 수요일 23시 59분까지</span>
+      <span class="mail">/ data.station.project@gmail.com 로 제출</span>
+    </div>
+  </section>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step02.html">← STEP 02 · 데이터 맵 구성</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step04.html">STEP 04 · 인사이트 도출 →</a>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('.acc-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.acc-item');
+      var body=item.querySelector('.acc-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+  window.addEventListener('load',function(){
+    var first=document.querySelector('.acc-item.open .acc-body');
+    if(first){first.style.maxHeight=first.scrollHeight+'px';}
+  });
+  // 이미지 로드 후 열려있는 토글 높이 재계산 (내용 잘림 방지)
+  document.querySelectorAll('.acc-body img').forEach(function(img){
+    img.addEventListener('load',function(){
+      var body=img.closest('.acc-body');
+      if(body && body.closest('.acc-item').classList.contains('open')){
+        body.style.maxHeight=body.scrollHeight+'px';
+      }
+    });
+  });
+</script>
+</body>
+</html>
