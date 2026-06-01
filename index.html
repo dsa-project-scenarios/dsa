@@ -290,11 +290,11 @@
   // 메뉴 URL 연결 지점 (배포 시 href 교체)
   const links={
     0:"step0.html", // 0. 주제 선정
-    1:"step1.html", // 1. 과제정의
-    2:"step2.html", // 2. 데이터 맵 구성
-    3:"step3.html", // 3. 데이터 분석
-    4:"step4.html", // 4. 인사이트 도출 및 개선안 작성
-    5:"step5.html"  // 5. 최종 발표
+    1:"step01.html", // 1. 과제정의
+    2:"step02.html", // 2. 데이터 맵 구성
+    3:"step03.html", // 3. 데이터 분석
+    4:"step04.html", // 4. 인사이트 도출 및 개선안 작성
+    5:"step05.html"  // 5. 최종 발표
   };
   document.querySelectorAll('.step').forEach(a=>{
     a.setAttribute('href',links[a.dataset.step]);
