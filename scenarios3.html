@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>간편식 무균밥 생산 공정 프로젝트 | DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;
+    --bg-elev:#0e0e11;
+    --bg-card:#121216;
+    --line:#26262d;
+    --line-soft:#1a1a1f;
+    --txt:#f2f2f4;
+    --txt-dim:#9a9aa6;
+    --txt-faint:#5a5a64;
+    --accent:#e08a3c;          /* Food Production 테마 컬러 */
+    --accent-dim:#b56b28;
+    --accent-glow:rgba(224,138,60,.16);
+    --warn:#ff8585;
+    --good:#3fb96e;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 18% 12%, var(--accent-glow), transparent 38%),
+      radial-gradient(circle at 85% 88%, rgba(224,138,60,.06), transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+    background-image:linear-gradient(var(--txt) 1px,transparent 1px),linear-gradient(90deg,var(--txt) 1px,transparent 1px);
+    background-size:46px 46px;
+  }
+  .wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* top bar */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    border-bottom:1px solid var(--line);
+    background:rgba(7,7,8,.85);backdrop-filter:blur(8px);
+  }
+  .topbar .bar{max-width:1080px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:14px}
+  .topbar .brandbar{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px;color:var(--txt)}
+  .topbar .brandbar .logo{width:30px;height:30px;flex:0 0 30px;overflow:hidden;display:grid;place-items:center}
+  .topbar .brandbar .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .topbar .brandbar small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* header */
+  header{padding:54px 0 24px;text-align:center}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow .cat-pill{
+    background:var(--accent);color:#1a0f04;font-weight:700;
+    padding:3px 10px;border-radius:5px;letter-spacing:1px;
+  }
+  h1{
+    font-family:'Archivo','Noto Sans KR',sans-serif;
+    font-weight:800;
+    font-size:clamp(30px,5.4vw,54px);line-height:1.06;letter-spacing:-1px;
+    color:#ffffff;
+  }
+  .subkr{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--txt-faint);margin-top:16px;text-transform:uppercase}
+  .rule{width:60px;height:2px;background:var(--accent);margin:24px auto 0;border-radius:2px}
+
+  /* section head */
+  .section-head{margin:54px 0 24px}
+  .section-head .num{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent)}
+  .section-head h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;margin-top:4px}
+  .section-head .sub{color:var(--txt-faint);font-size:13.5px;font-weight:300;margin-top:2px}
+
+  /* scenario body */
+  .scenario{
+    background:var(--bg-card);
+    border:1px solid var(--line-soft);border-left:3px solid var(--accent);
+    border-radius:14px;padding:30px 36px;
+  }
+  .scenario .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;
+    letter-spacing:2px;color:var(--accent);border:1px solid var(--accent-dim);
+    padding:4px 12px;border-radius:20px;margin-bottom:20px;
+  }
+  .scenario p{color:var(--txt-dim);font-size:15px;font-weight:300;margin-bottom:18px}
+  .scenario p:last-child{margin-bottom:0}
+  .scenario p strong{color:var(--txt);font-weight:500}
+  .scenario p .hl{color:var(--accent);font-weight:500}
+  .scenario p .down{color:var(--warn);font-weight:500;font-family:var(--mono)}
+
+  /* objectives */
+  .obj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .obj{
+    position:relative;background:var(--bg-card);
+    border:1px solid var(--line-soft);border-radius:13px;
+    padding:24px 24px 24px 24px;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease;
+  }
+  .obj::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
+    transform:scaleY(0);transform-origin:top;transition:transform .35s ease;
+  }
+  .obj:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .obj:hover::before{transform:scaleY(1)}
+  .obj .n{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--accent-dim);border-radius:7px;
+    width:34px;height:34px;display:grid;place-items:center;margin-bottom:14px;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+  }
+  .obj p{font-size:14.5px;color:var(--txt-dim);font-weight:400;line-height:1.6}
+
+  /* data files / toggle */
+  .files{display:grid;gap:14px}
+  .file-item{
+    border:1px solid var(--line-soft);border-radius:13px;background:var(--bg-card);overflow:hidden;
+    transition:border-color .25s;
+  }
+  .file-item.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .file-head{
+    width:100%;border:0;background:transparent;cursor:pointer;color:var(--txt);
+    display:flex;align-items:center;gap:16px;padding:20px 22px;text-align:left;font-family:'Noto Sans KR',sans-serif;
+  }
+  .file-head:hover{background:var(--bg-elev)}
+  .file-ico{
+    width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+    display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+    border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  }
+  .file-ico svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .file-meta{flex:1;min-width:0}
+  .file-name{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--txt);word-break:break-all}
+  .file-desc{font-size:12.5px;color:var(--txt-faint);margin-top:3px}
+  .file-dim{
+    font-family:var(--mono);font-size:11px;color:var(--accent);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;white-space:nowrap;
+  }
+  .chev{width:20px;height:20px;flex-shrink:0;color:var(--txt-dim);stroke:currentColor;fill:none;stroke-width:2;transition:transform .3s}
+  .file-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .file-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .file-inner{padding:4px 22px 24px}
+
+  /* dictionary table */
+  .dict{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  .dict th,.dict td{border:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top}
+  .dict thead th{
+    background:var(--bg-elev);font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;
+    color:var(--txt-faint);text-transform:uppercase;font-weight:500;
+  }
+  .dict td.var{font-family:var(--mono);font-weight:700;color:var(--txt);white-space:nowrap}
+  .dict td.type{font-family:var(--mono);font-size:12px;color:var(--accent);white-space:nowrap}
+  .dict td.detail{color:var(--txt-dim)}
+  .dict tbody tr:hover{background:rgba(224,138,60,.04)}
+  .download-note{
+    margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--txt-faint);
+    display:flex;align-items:center;gap:8px;
+  }
+  .download-note a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-dim)}
+  .download-note a:hover{color:#ffb066}
+
+  .table-scroll{overflow-x:auto}
+
+  /* footer */
+  footer{
+    margin:70px 0 30px;padding-top:30px;border-top:1px solid var(--line-soft);text-align:center;
+  }
+  footer .brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--txt-dim)}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:1px;margin-top:6px}
+
+  /* pager */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:24px 0 60px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--bg-card);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:760px){.obj-grid{grid-template-columns:1fr}}
+  @media(max-width:520px){
+    .scenario{padding:24px 20px}
+    .file-head{padding:18px 16px;gap:12px}
+    .file-inner{padding:4px 14px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="bar">
+    <div class="brandbar">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← 주제 선정으로</a></nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow reveal"><span class="cat-pill">PRODUCTION</span> Food Production · Scenario 03</div>
+    <h1 class="reveal">간편식 무균밥<br>생산 공정 프로젝트</h1>
+    <div class="subkr reveal">HMR Sterilized-Rice Production Process</div>
+    <div class="rule reveal"></div>
+  </header>
+
+  <!-- 비즈니스 시나리오 -->
+  <div class="section-head reveal">
+    <div class="num">// 01</div>
+    <h2>Business Scenario</h2>
+    <div class="sub">비즈니스 시나리오</div>
+  </div>
+
+  <section class="scenario reveal">
+    <span class="tag">BUSINESS SCENARIO</span>
+    <p>최근 1인 가구의 급격한 증가와 지속적인 물가 상승, 그리고 조리 시간을 줄이려는 라이프스타일 변화로 인해, 소비자들이 식당 외식이나 직접 조리를 대신하여 간편식(HMR)으로 식사를 해결하는 비중이 빠르게 늘고 있다. 특히 별도의 반찬 없이 한 끼를 해결할 수 있는 즉석밥·볶음밥·비빔밥·덮밥류 제품은 1인 가구의 핵심 수요 품목으로 자리잡았다.</p>
+
+    <p>A업체는 이러한 밥류 간편식을 전문적으로 생산하는 업체로, 여러 식품 유통·판매 업체로부터 수주를 받아 제품을 생산하며 <strong>10년간 업계 1위</strong>를 지켜왔다. 본 업체는 '무균밥' 및 볶음밥 베이스를 생산하기 위한 자체 생산 설비를 보유하고 있으며, 수주가 들어오면 제품을 생산하는 <span class="hl">"주문 생산(MTO)"</span> 방식으로 공장을 운영하고 있다. 또한 효과적인 생산과 품질 모니터링을 위해 쿠킹실·충전실·실링 등 각 생산 설비에 IoT 센서를 부착하여, 생산 단계별로 발생하는 온도·압력·생산시간 등의 공정 데이터와 비가동(에러) 데이터를 통합 관리하고 있다.</p>
+
+    <p>그러나 최근 1인 가구를 겨냥한 밥류 간편식 수요가 급증하면서, 본 업체는 주문량을 정확히 예측하지 못해 생산 인프라를 효율적으로 운용하는 데 어려움을 겪고 있다. 수요 변동에 대응하는 과정에서 생산 과부하가 발생하고, 이로 인해 공정 이상 및 불량·비가동(에러)의 비중이 증가하는 추세이다. 그 결과 늘어난 대량 수주에 적절히 대응하지 못하면서, <span class="down">2025년 1분기 이후 매출액이 분기별로 각각 19%, 15%, 12%씩 점진적으로 하락</span>하여 경영 위기가 심화되고 있다. 무리한 수요 대응에 따른 생산 과부하로 제품 불량이 증가하는 추세이며, 경쟁 업체들의 잇따른 진입으로 시장 내 위기가 가중되고 있는 상황이다.</p>
+
+    <p>본 업체는 위 상황을 고려하여, 보유하고 있는 <strong>수주 데이터(booking)·생산 공정 데이터(cooking)·에러 데이터(error)</strong> 를 분석하여 아래의 목적을 달성하고자 한다.</p>
+  </section>
+
+  <!-- 목적 -->
+  <div class="section-head reveal">
+    <div class="num">// 02</div>
+    <h2>Objectives</h2>
+    <div class="sub">프로젝트 목적</div>
+  </div>
+
+  <div class="obj-grid">
+    <div class="obj reveal">
+      <div class="n">01</div>
+      <p>밥류 간편식 수요 예측을 통한 예측 생산 시스템으로의 전환으로 <strong style="color:var(--txt)">물품 조달 안정성 확보</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">02</div>
+      <p>생산·출하 일자 예측을 통한 출하/재고 관리 시스템 구성으로 <strong style="color:var(--txt)">1인 가구 수요 대응력 강화</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">03</div>
+      <p>밥류 주요 불량 품목에 대한 <strong style="color:var(--txt)">실시간 모니터링 시스템 구축</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">04</div>
+      <p>불량 및 에러 관리 시스템을 활용한 <strong style="color:var(--txt)">생산 안정성 증대</strong></p>
+    </div>
+  </div>
+
+  <!-- 제공 데이터 -->
+  <div class="section-head reveal">
+    <div class="num">// 03</div>
+    <h2>Provided Data</h2>
+    <div class="sub">제공 데이터 · 데이터 변수 정의서 (클릭하여 펼치기)</div>
+  </div>
+
+  <div class="files reveal">
+
+    <!-- Booking -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">2025_Food_Booking.csv</span>
+          <span class="file-desc">제품 수요량 데이터 · 수주 업체의 제품 생산/납품 데이터 (납품 후 생성)</span>
+        </span>
+        <span class="file-dim">16 COL / 134,775 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>상세 내용</th></tr></thead>
+            <tbody>
+              <tr><td class="var">수주일자</td><td class="type">Datetime</td><td class="detail">수주 일자</td></tr>
+              <tr><td class="var">수주일련번호</td><td class="type">ID</td><td class="detail">수주 일련번호</td></tr>
+              <tr><td class="var">거래처코드</td><td class="type">ID</td><td class="detail">거래처 코드번호</td></tr>
+              <tr><td class="var">수주부서</td><td class="type">범주형</td><td class="detail">수주 부서 코드</td></tr>
+              <tr><td class="var">수주품목코드</td><td class="type">ID</td><td class="detail">수주 품목 코드</td></tr>
+              <tr><td class="var">수주단위</td><td class="type">연속형</td><td class="detail">수주 단위 (EA 단위 / KG 단위)</td></tr>
+              <tr><td class="var">출고수량KG</td><td class="type">연속형</td><td class="detail">출고 수량 (Kg) / 생산되어 출고된 제품 무게</td></tr>
+              <tr><td class="var">수주수량KG</td><td class="type">연속형</td><td class="detail">수주 수량 (Kg) / 생산 요청된 제품 무게</td></tr>
+              <tr><td class="var">수주단가</td><td class="type">연속형</td><td class="detail">수주 단가 (원) / 단위 물품 당 수주 가격</td></tr>
+              <tr><td class="var">수주금액</td><td class="type">연속형</td><td class="detail">수주 금액 (원) / 해당 물품의 총 수주 가격</td></tr>
+              <tr><td class="var">부가세금액</td><td class="type">연속형</td><td class="detail">부가세 금액 (원)</td></tr>
+              <tr><td class="var">출하완료여부</td><td class="type">범주형</td><td class="detail">공장 출하 완료 여부</td></tr>
+              <tr><td class="var">납기일자</td><td class="type">Datetime</td><td class="detail">납기된 일자</td></tr>
+              <tr><td class="var">기준단가</td><td class="type">범주형</td><td class="detail">기존에 설정된 단가 (원)</td></tr>
+              <tr><td class="var">생산지시여부</td><td class="type">범주형</td><td class="detail">추가 생산 지시 여부</td></tr>
+              <tr><td class="var">수주수량</td><td class="type">연속형</td><td class="detail">수주 수량 (개수) / 생산 요청된 제품 개수</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/2025_Food_Booking.csv" download>files/2025_Food_Booking.csv</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cooking -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 3v18M19 3c-1.5 0-3 1.8-3 5s1.5 4 3 4v9"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">2025_Food_Cooking.csv</span>
+          <span class="file-desc">생산 과정 데이터 · 주요 설비 데이터·생산시간 측정 (생산 후 생성, 연속형은 공정 중 발생값 평균치)</span>
+        </span>
+        <span class="file-dim">13 COL / 8,909 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>상세 내용</th></tr></thead>
+            <tbody>
+              <tr><td class="var">순번</td><td class="type">범주형</td><td class="detail">생산 순번</td></tr>
+              <tr><td class="var">생산라인코드</td><td class="type">Datetime</td><td class="detail">생산 라인 코드</td></tr>
+              <tr><td class="var">생산라인명</td><td class="type">ID</td><td class="detail">생산 라인 명</td></tr>
+              <tr><td class="var">생산일자</td><td class="type">ID</td><td class="detail">제품 생산 일자</td></tr>
+              <tr><td class="var">품목코드</td><td class="type">범주형</td><td class="detail">품목 코드</td></tr>
+              <tr><td class="var">품목명</td><td class="type">ID</td><td class="detail">품목 이름</td></tr>
+              <tr><td class="var">작업장코드</td><td class="type">연속형</td><td class="detail">작업장 코드</td></tr>
+              <tr><td class="var">충전실온도</td><td class="type">연속형</td><td class="detail">충전실 온도 (℃)</td></tr>
+              <tr><td class="var">실링온도</td><td class="type">연속형</td><td class="detail">실링작업 온도 (℃)</td></tr>
+              <tr><td class="var">쿠킹온도</td><td class="type">연속형</td><td class="detail">쿠킹실 온도 (℃)</td></tr>
+              <tr><td class="var">쿠킹스팀압력</td><td class="type">연속형</td><td class="detail">쿠킹 스팀 압력 (kg/cm²)</td></tr>
+              <tr><td class="var">실링압력</td><td class="type">연속형</td><td class="detail">실링 압력 (kg/cm²)</td></tr>
+              <tr><td class="var">생산시간</td><td class="type">범주형</td><td class="detail">생산 시간 (분)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/2025_Food_Cooking.csv" download>files/2025_Food_Cooking.csv</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">2025_Food_Error.csv</span>
+          <span class="file-desc">에러 데이터 · 제품 생산 과정 중 오류 발생 시 수집된 데이터</span>
+        </span>
+        <span class="file-dim">12 COL / 408 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>상세 내용</th></tr></thead>
+            <tbody>
+              <tr><td class="var">순번</td><td class="type">범주형</td><td class="detail">생산 순번</td></tr>
+              <tr><td class="var">생산라인코드</td><td class="type">Datetime</td><td class="detail">생산 라인 코드</td></tr>
+              <tr><td class="var">생산라인명</td><td class="type">ID</td><td class="detail">생산라인 명</td></tr>
+              <tr><td class="var">생산일자</td><td class="type">ID</td><td class="detail">제품 생산 일자</td></tr>
+              <tr><td class="var">품목코드</td><td class="type">범주형</td><td class="detail">품목 코드</td></tr>
+              <tr><td class="var">품목명</td><td class="type">ID</td><td class="detail">품목 이름</td></tr>
+              <tr><td class="var">발생시간</td><td class="type">연속형</td><td class="detail">에러 발생 시간</td></tr>
+              <tr><td class="var">종료시간</td><td class="type">연속형</td><td class="detail">에러 조치 시간</td></tr>
+              <tr><td class="var">오류조치시간</td><td class="type">연속형</td><td class="detail">에러 발생부터 조치까지 소요시간 (분)</td></tr>
+              <tr><td class="var">비가동코드</td><td class="type">연속형</td><td class="detail">에러 메시지 코드</td></tr>
+              <tr><td class="var">에러메시지</td><td class="type">연속형</td><td class="detail">에러 메시지</td></tr>
+              <tr><td class="var">오류발생작업장명</td><td class="type">연속형</td><td class="detail">에러 발생 작업장</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/2025_Food_Error.csv" download>files/2025_Food_Error.csv</a></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="reveal">
+    <div class="brand">DSA TEAM PROJECT</div>
+    <p>SCENARIO 03 — FOOD PRODUCTION</p>
+  </footer>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← STEP 00 · 주제 선정</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step01.html">STEP 01 · 과제 정의 →</a>
+  </div>
+
+</div>
+
+<script>
+  // reveal
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i*45)+'ms';io.observe(el);
+  });
+
+  // file toggle
+  document.querySelectorAll('.file-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.file-item');
+      var body=item.querySelector('.file-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+</script>
+</body>
+</html>
