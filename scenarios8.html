@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대학 진로/진학 추천 서비스 프로젝트 | DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;
+    --bg-elev:#0e0e11;
+    --bg-card:#121216;
+    --line:#26262d;
+    --line-soft:#1a1a1f;
+    --txt:#f2f2f4;
+    --txt-dim:#9a9aa6;
+    --txt-faint:#5a5a64;
+    --accent:#6db5e0;          /* Edutech 테마 컬러 */
+    --accent-dim:#4a8cb5;
+    --accent-glow:rgba(109,181,224,.16);
+    --warn:#ff8585;
+    --good:#3fb96e;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 18% 12%, var(--accent-glow), transparent 38%),
+      radial-gradient(circle at 85% 88%, rgba(109,181,224,.06), transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+    background-image:linear-gradient(var(--txt) 1px,transparent 1px),linear-gradient(90deg,var(--txt) 1px,transparent 1px);
+    background-size:46px 46px;
+  }
+  .wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* top bar */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    border-bottom:1px solid var(--line);
+    background:rgba(7,7,8,.85);backdrop-filter:blur(8px);
+  }
+  .topbar .bar{max-width:1080px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:14px}
+  .topbar .brandbar{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px;color:var(--txt)}
+  .topbar .brandbar .logo{width:30px;height:30px;flex:0 0 30px;overflow:hidden;display:grid;place-items:center}
+  .topbar .brandbar .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .topbar .brandbar small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* header */
+  header{padding:54px 0 24px;text-align:center}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow .cat-pill{
+    background:var(--accent);color:#04121b;font-weight:700;
+    padding:3px 10px;border-radius:5px;letter-spacing:1px;
+  }
+  h1{
+    font-family:'Archivo','Noto Sans KR',sans-serif;
+    font-weight:800;
+    font-size:clamp(30px,5.4vw,54px);line-height:1.06;letter-spacing:-1px;
+    color:#ffffff;
+  }
+  .subkr{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--txt-faint);margin-top:16px;text-transform:uppercase}
+  .rule{width:60px;height:2px;background:var(--accent);margin:24px auto 0;border-radius:2px}
+
+  /* section head */
+  .section-head{margin:54px 0 24px}
+  .section-head .num{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent)}
+  .section-head h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;margin-top:4px}
+  .section-head .sub{color:var(--txt-faint);font-size:13.5px;font-weight:300;margin-top:2px}
+
+  /* scenario body */
+  .scenario{
+    background:var(--bg-card);
+    border:1px solid var(--line-soft);border-left:3px solid var(--accent);
+    border-radius:14px;padding:30px 36px;
+  }
+  .scenario .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;
+    letter-spacing:2px;color:var(--accent);border:1px solid var(--accent-dim);
+    padding:4px 12px;border-radius:20px;margin-bottom:20px;
+  }
+  .scenario p{color:var(--txt-dim);font-size:15px;font-weight:300;margin-bottom:18px}
+  .scenario p:last-child{margin-bottom:0}
+  .scenario p strong{color:var(--txt);font-weight:500}
+  .scenario p .hl{color:var(--accent);font-weight:500}
+
+  /* objectives */
+  .obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .obj{
+    position:relative;background:var(--bg-card);
+    border:1px solid var(--line-soft);border-radius:13px;
+    padding:24px;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease;
+  }
+  .obj::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
+    transform:scaleY(0);transform-origin:top;transition:transform .35s ease;
+  }
+  .obj:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .obj:hover::before{transform:scaleY(1)}
+  .obj .n{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--accent-dim);border-radius:7px;
+    width:34px;height:34px;display:grid;place-items:center;margin-bottom:14px;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+  }
+  .obj p{font-size:14px;color:var(--txt-dim);font-weight:400;line-height:1.6}
+  .obj p strong{color:var(--txt);font-weight:500}
+
+  /* data files / toggle */
+  .files{display:grid;gap:14px}
+  .file-item{
+    border:1px solid var(--line-soft);border-radius:13px;background:var(--bg-card);overflow:hidden;
+    transition:border-color .25s;
+  }
+  .file-item.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .file-head{
+    width:100%;border:0;background:transparent;cursor:pointer;color:var(--txt);
+    display:flex;align-items:center;gap:16px;padding:18px 22px;text-align:left;font-family:'Noto Sans KR',sans-serif;
+  }
+  .file-head:hover{background:var(--bg-elev)}
+  .file-ico{
+    width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+    display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+    border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  }
+  .file-ico svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .file-meta{flex:1;min-width:0}
+  .file-name{font-family:var(--mono);font-size:13.5px;font-weight:700;color:var(--txt);word-break:break-all}
+  .file-desc{font-size:12.5px;color:var(--txt-faint);margin-top:3px}
+  .file-dim{
+    font-family:var(--mono);font-size:10.5px;color:var(--accent);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;white-space:nowrap;
+  }
+  .chev{width:20px;height:20px;flex-shrink:0;color:var(--txt-dim);stroke:currentColor;fill:none;stroke-width:2;transition:transform .3s}
+  .file-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .file-body{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .file-inner{padding:4px 22px 24px}
+
+  /* dictionary table */
+  .dict{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .dict th,.dict td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .dict thead th{
+    background:var(--bg-elev);font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;
+    color:var(--txt-faint);text-transform:uppercase;font-weight:500;position:sticky;top:0;
+  }
+  .dict td.var{font-family:var(--mono);font-weight:700;color:var(--txt);white-space:nowrap}
+  .dict td.type{font-family:var(--mono);font-size:11.5px;color:var(--accent);white-space:nowrap}
+  .dict td.detail{color:var(--txt-dim)}
+  .dict tbody tr:hover{background:rgba(109,181,224,.05)}
+  .table-scroll{overflow:auto;max-height:460px;border-radius:8px;border:1px solid var(--line-soft)}
+  .table-scroll .dict{margin-top:0}
+  .table-scroll .dict th,.table-scroll .dict td{border-top:0}
+  .download-note{
+    margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--txt-faint);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .download-note a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-dim)}
+  .download-note a:hover{color:#9fd2f2}
+  .multi-note{
+    margin-top:10px;font-size:12px;color:var(--txt-faint);
+    background:var(--bg-elev);border:1px solid var(--line-soft);border-radius:8px;padding:11px 14px;
+  }
+  .multi-note code{font-family:var(--mono);color:var(--accent);font-size:11.5px}
+
+  /* notice / disclaimer */
+  .notice{
+    margin-top:54px;border:1px solid rgba(255,133,133,.28);border-left:3px solid var(--warn);
+    border-radius:13px;background:linear-gradient(90deg,rgba(255,133,133,.06),transparent 70%);
+    padding:26px 30px;
+  }
+  .notice .ntag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--warn);
+    border:1px solid rgba(255,133,133,.4);padding:4px 12px;border-radius:20px;margin-bottom:18px;
+  }
+  .notice ol{list-style:none;counter-reset:nt;display:grid;gap:14px}
+  .notice ol > li{
+    position:relative;padding-left:34px;font-size:14px;color:var(--txt-dim);line-height:1.65;
+  }
+  .notice ol > li::before{
+    counter-increment:nt;content:counter(nt);
+    position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:6px;
+    background:rgba(255,133,133,.14);border:1px solid rgba(255,133,133,.4);
+    color:var(--warn);font-family:var(--mono);font-size:11px;font-weight:700;
+    display:grid;place-items:center;
+  }
+  .notice ol > li strong{color:var(--txt);font-weight:500}
+  .notice ul.banlist{list-style:none;margin:14px 0 0 0;display:grid;gap:9px}
+  .notice ul.banlist li{
+    position:relative;padding:10px 14px 10px 34px;font-size:13.5px;color:#ffffff;font-weight:500;
+    background:var(--bg-card);border:1px solid var(--line-soft);border-radius:8px;line-height:1.55;
+  }
+  .notice ul.banlist li::before{
+    content:"✕";position:absolute;left:13px;top:10px;color:var(--warn);font-size:12px;font-weight:700;
+  }
+  .notice ul.banlist li.ok{border-color:rgba(63,185,110,.3);color:var(--txt-dim);font-weight:400}
+  .notice ul.banlist li.ok::before{content:"✓";color:var(--good)}
+
+  /* footer */
+  footer{
+    margin:54px 0 30px;padding-top:30px;border-top:1px solid var(--line-soft);text-align:center;
+  }
+  footer .brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--txt-dim)}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:1px;margin-top:6px}
+
+  /* pager */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:24px 0 60px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--bg-card);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:820px){.obj-grid{grid-template-columns:1fr}}
+  @media(max-width:520px){
+    .scenario{padding:24px 20px}
+    .file-head{padding:16px;gap:12px}
+    .file-inner{padding:4px 14px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="bar">
+    <div class="brandbar">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← 주제 선정으로</a></nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow reveal"><span class="cat-pill">EDUCATION</span> Edutech · Scenario 08</div>
+    <h1 class="reveal">대학 진로/진학<br>추천 서비스 프로젝트</h1>
+    <div class="subkr reveal">College Admission Recommendation Platform</div>
+    <div class="rule reveal"></div>
+  </header>
+
+  <!-- 비즈니스 시나리오 -->
+  <div class="section-head reveal">
+    <div class="num">// 01</div>
+    <h2>Business Scenario</h2>
+    <div class="sub">비즈니스 시나리오</div>
+  </div>
+
+  <section class="scenario reveal">
+    <span class="tag">BUSINESS SCENARIO</span>
+    <p>최근 대학 입시 구조가 수시·정시, 종합대·전문대, 교과·종합·논술·실기 등으로 갈수록 복잡해지고, 매년 전형 방법과 수능 반영비율·수능최저 조건이 바뀌면서, 학생과 교사가 직접 입시 정보를 추적하고 해석하는 데 드는 부담이 빠르게 커지고 있다. 특히 학교 현장에서는 한 명의 진학 담당 교사가 수십 명의 학생을 상담해야 하는데, 학생마다 내신·모의고사 성적, 희망 계열, 생활기록부 활동이 제각각이어서 "이 학생이 어디에 지원할 수 있는가"를 정확히 판단하기 위해 매번 여러 대학의 입결 자료와 전형 요강을 수작업으로 대조해야 하는 실정이다.</p>
+
+    <p>S사는 이러한 학교 행정업무를 보조하는 서비스를 제공하는 <strong>교육 SaaS 앱 제작사</strong>로, 전국 중·고등학교를 대상으로 출결·성적·상담 기록 관리 기능을 제공하며 시장에서 입지를 다져왔다. 본사는 교사의 행정 부담을 줄이고 학생의 진학 의사결정을 돕는 것을 핵심 가치로 삼고 있으며, 현재 앱 내에 흩어져 있는 학사 데이터를 통합 관리할 수 있는 자체 플랫폼을 보유하고 있다.</p>
+
+    <p>그러나 최근 들어 학교 현장에서 <span class="hl">"성적 관리뿐 아니라 진학 상담까지 한 곳에서 해결하고 싶다"</span>는 교사·학생의 요구가 급증하면서, 본사는 입시 정보 서비스의 부재로 인해 경쟁 에듀테크 업체에 점차 점유율을 내주고 있는 상황이다. 입시 도메인 데이터는 매년 갱신되고 전형별로 구조가 달라 통합·해석이 어렵기 때문에, 신뢰할 수 있는 진학 추천·상담 기능을 갖춘 경쟁사가 시장에 잇따라 진입하면서 위기가 가중되고 있다.</p>
+
+    <p>본사는 위 상황을 고려하여, 보유·수집하고 있는 <strong>2026학년도 수시 입결 데이터(종합대·전문대), 정시 입결 데이터(종합대·전문대), 정시 전형별 주요사항, 논술 전형 데이터, 학과 상세 리스트</strong>를 분석하여 아래의 목적을 달성하고자 한다.</p>
+  </section>
+
+  <!-- 목적 -->
+  <div class="section-head reveal">
+    <div class="num">// 02</div>
+    <h2>Objectives</h2>
+    <div class="sub">프로젝트 목적</div>
+  </div>
+
+  <div class="obj-grid">
+    <div class="obj reveal">
+      <div class="n">01</div>
+      <p>학생의 내신 등급·수능 성적(백분위·등급)을 입력하면 경쟁률·충원율·합격컷 데이터를 기반으로 합격 가능성을 산출하여, 적정·안정·소신 지원 학과 및 대학을 추천하는 <strong>진학 추천 엔진 개발</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">02</div>
+      <p>교사가 학생을 상담하는 관점에서 지역별·계열별·전형유형별 입결 추이와 전형 요소 반영비율, 수능최저 조건을 한눈에 비교할 수 있는 <strong>입시 정보 대시보드 구성</strong>으로 상담 업무 효율 향상</p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">03</div>
+      <p>학생의 생활기록부 활동·관심 분야 데이터와 학과별 진출 분야·관련 교과·직업 정보를 연계하여 <strong>학생 맞춤형 진로·진학 추천 대시보드 구성</strong></p>
+    </div>
+  </div>
+
+  <!-- 제공 데이터 -->
+  <div class="section-head reveal">
+    <div class="num">// 03</div>
+    <h2>Provided Data</h2>
+    <div class="sub">제공 데이터 · 데이터 변수 정의서 (클릭하여 펼치기)</div>
+  </div>
+
+  <div class="files reveal">
+
+    <!-- 수시 입결 종합대 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M12 4 2 9l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">수시_입결_데이터_종합대_part1~3.xlsx</span>
+          <span class="file-desc">수시 입결 데이터 (종합대) · 전형별 경쟁률·충원율·내신컷·반영비율</span>
+        </span>
+        <span class="file-dim">55 COL / 31,970 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">지역</td><td class="type">String</td><td class="detail">대학 소재 지역</td></tr>
+              <tr><td class="var">대학명</td><td class="type">String</td><td class="detail">대학 이름</td></tr>
+              <tr><td class="var">학과명</td><td class="type">String</td><td class="detail">모집 학과명</td></tr>
+              <tr><td class="var">전형명</td><td class="type">String</td><td class="detail">세부 전형명</td></tr>
+              <tr><td class="var">전형유형</td><td class="type">String</td><td class="detail">전형 유형 (교과/종합/논술/실기 등)</td></tr>
+              <tr><td class="var">학년도</td><td class="type">Integer</td><td class="detail">입시 기준 연도</td></tr>
+              <tr><td class="var">대학구분</td><td class="type">String</td><td class="detail">대학 구분 (전문대)</td></tr>
+              <tr><td class="var">모집인원</td><td class="type">Integer</td><td class="detail">해당 전형 모집 인원</td></tr>
+              <tr><td class="var">경쟁률_2025</td><td class="type">Float</td><td class="detail">2025학년도 경쟁률</td></tr>
+              <tr><td class="var">경쟁률_2024</td><td class="type">Float</td><td class="detail">2024학년도 경쟁률</td></tr>
+              <tr><td class="var">경쟁률_2023</td><td class="type">Float</td><td class="detail">2023학년도 경쟁률</td></tr>
+              <tr><td class="var">충원인원</td><td class="type">Integer</td><td class="detail">추가 합격 인원</td></tr>
+              <tr><td class="var">충원율</td><td class="type">Float</td><td class="detail">모집인원 대비 추가 합격 비율 (%)</td></tr>
+              <tr><td class="var">내신_평균등급</td><td class="type">Float</td><td class="detail">합격자 내신 평균 등급</td></tr>
+              <tr><td class="var">내신_70컷</td><td class="type">Float</td><td class="detail">합격자 내신 70% 컷</td></tr>
+              <tr><td class="var">내신_80컷</td><td class="type">Float</td><td class="detail">합격자 내신 80% 컷</td></tr>
+              <tr><td class="var">내신_90컷</td><td class="type">Float</td><td class="detail">합격자 내신 90% 컷</td></tr>
+              <tr><td class="var">내신_최저등급</td><td class="type">Float</td><td class="detail">합격자 내신 최저 등급</td></tr>
+              <tr><td class="var">내신_환산평균</td><td class="type">Float</td><td class="detail">내신 환산 평균 점수</td></tr>
+              <tr><td class="var">내신_환산70컷</td><td class="type">Float</td><td class="detail">내신 환산 70% 컷</td></tr>
+              <tr><td class="var">수능최저_적용여부</td><td class="type">String</td><td class="detail">수능 최저학력기준 적용 여부 (적용/미적용)</td></tr>
+              <tr><td class="var">수능최저_조건</td><td class="type">String</td><td class="detail">수능 최저학력기준 상세 조건</td></tr>
+              <tr><td class="var">학생부_반영비율</td><td class="type">Float</td><td class="detail">전형 전체 기준 학생부 최대 반영 비율 (%)</td></tr>
+              <tr><td class="var">서류_반영비율</td><td class="type">Float</td><td class="detail">전형 전체 기준 서류 평가 최대 반영 비율 (%)</td></tr>
+              <tr><td class="var">논술_반영비율</td><td class="type">Float</td><td class="detail">전형 전체 기준 논술 최대 반영 비율 (%)</td></tr>
+              <tr><td class="var">면접_반영비율</td><td class="type">Float</td><td class="detail">전형 전체 기준 면접 최대 반영 비율 (%)</td></tr>
+              <tr><td class="var">실기_반영비율</td><td class="type">Float</td><td class="detail">전형 전체 기준 실기 최대 반영 비율 (%)</td></tr>
+              <tr><td class="var">1단계_비율</td><td class="type">Float</td><td class="detail">1단계 선발 비율 (%)</td></tr>
+              <tr><td class="var">2단계_비율</td><td class="type">Float</td><td class="detail">2단계 선발 비율 (%)</td></tr>
+              <tr><td class="var">1단계_선발비율</td><td class="type">Float</td><td class="detail">1단계 선발비율 (%)</td></tr>
+              <tr><td class="var">1단계_학생부</td><td class="type">Float</td><td class="detail">1단계 학생부 반영 비율 (%)</td></tr>
+              <tr><td class="var">1단계_서류</td><td class="type">Float</td><td class="detail">1단계 서류 평가 반영 비율 (%)</td></tr>
+              <tr><td class="var">1단계_논술</td><td class="type">Float</td><td class="detail">1단계 논술 반영 비율 (%)</td></tr>
+              <tr><td class="var">1단계_면접</td><td class="type">Float</td><td class="detail">1단계 면접 반영 비율 (%)</td></tr>
+              <tr><td class="var">1단계_실기</td><td class="type">Float</td><td class="detail">1단계 실기 반영 비율 (%)</td></tr>
+              <tr><td class="var">1단계_기타</td><td class="type">Float</td><td class="detail">1단계 기타 전형요소 반영 비율 (%)</td></tr>
+              <tr><td class="var">2단계_선발비율</td><td class="type">Float</td><td class="detail">2단계 선발비율 (%)</td></tr>
+              <tr><td class="var">2단계_학생부</td><td class="type">Float</td><td class="detail">2단계 학생부 반영 비율 (%)</td></tr>
+              <tr><td class="var">2단계_서류</td><td class="type">Float</td><td class="detail">2단계 서류 평가 반영 비율 (%)</td></tr>
+              <tr><td class="var">2단계_논술</td><td class="type">Float</td><td class="detail">2단계 논술 반영 비율 (%)</td></tr>
+              <tr><td class="var">2단계_면접</td><td class="type">Float</td><td class="detail">2단계 면접 반영 비율 (%)</td></tr>
+              <tr><td class="var">2단계_실기</td><td class="type">Float</td><td class="detail">2단계 실기 반영 비율 (%)</td></tr>
+              <tr><td class="var">2단계_기타</td><td class="type">Float</td><td class="detail">2단계 기타 전형요소 반영 비율 (%)</td></tr>
+              <tr><td class="var">1학년_비율</td><td class="type">Float</td><td class="detail">1학년 내신 반영 비율 (%)</td></tr>
+              <tr><td class="var">2학년_비율</td><td class="type">Float</td><td class="detail">2학년 내신 반영 비율 (%)</td></tr>
+              <tr><td class="var">3학년_비율</td><td class="type">Float</td><td class="detail">3학년 내신 반영 비율 (%)</td></tr>
+              <tr><td class="var">1·2학년_비율</td><td class="type">Float</td><td class="detail">1·2학년 통합 내신 반영 비율 (%)</td></tr>
+              <tr><td class="var">2·3학년_비율</td><td class="type">Float</td><td class="detail">2·3학년 통합 내신 반영 비율 (%)</td></tr>
+              <tr><td class="var">1·2·3학년_비율</td><td class="type">Float</td><td class="detail">전 학년 통합 내신 반영 비율 (%)</td></tr>
+              <tr><td class="var">전체학년_반영여부</td><td class="type">Boolean</td><td class="detail">전 학년 통합 비율이 적용되는지 여부</td></tr>
+              <tr><td class="var">반영교과</td><td class="type">String</td><td class="detail">내신 반영 교과 목록 또는 반영 방식</td></tr>
+              <tr><td class="var">반영과목수</td><td class="type">Integer</td><td class="detail">내신 반영 과목 수</td></tr>
+              <tr><td class="var">전형_평균등급</td><td class="type">Float</td><td class="detail">전형 기준 평균 등급</td></tr>
+              <tr><td class="var">전형_70컷</td><td class="type">Float</td><td class="detail">전형 기준 70% 컷</td></tr>
+              <tr><td class="var">전형_편차</td><td class="type">Float</td><td class="detail">전형 등급 표준편차</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="multi-note">3개 파일로 분할 제공 — <code>files/수시_입결_데이터__종합대__part1.xlsx</code>, <code>part2.xlsx</code>, <code>part3.xlsx</code> (동일 스키마)</div>
+          <div class="download-note">⬇ DATA &mdash;
+            <a href="files/수시_입결_데이터__종합대__part1.xlsx" download>데이터 다운로드 (part1)</a>
+            <a href="files/수시_입결_데이터__종합대__part2.xlsx" download>데이터 다운로드 (part2)</a>
+            <a href="files/수시_입결_데이터__종합대__part3.xlsx" download>데이터 다운로드 (part3)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 수시 입결 전문대 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M12 4 2 9l10 5 10-5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">수시_입결_데이터_전문대.xlsx</span>
+          <span class="file-desc">수시 입결 데이터 (전문대) · 종합대와 동일 스키마</span>
+        </span>
+        <span class="file-dim">55 COL / 13,145 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="multi-note">변수 구성은 <strong style="color:var(--txt)">수시_입결_데이터_종합대</strong>와 동일합니다 (55개 변수). 위 종합대 정의서를 참조하세요.</div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/수시_입결_데이터_전문대.xlsx" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 정시 입결 종합대 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V6M17 16v-5"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">정시_입결_데이터_종합대.xlsx</span>
+          <span class="file-desc">정시 입결 데이터 (종합대) · 환산점수·수능 백분위·영역별 합격컷</span>
+        </span>
+        <span class="file-dim">33 COL / 6,554 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">학년도</td><td class="type">Integer</td><td class="detail">입시 결과 기준 학년도</td></tr>
+              <tr><td class="var">대학명</td><td class="type">String</td><td class="detail">대학 이름</td></tr>
+              <tr><td class="var">대학코드</td><td class="type">Integer</td><td class="detail">대학 식별 코드</td></tr>
+              <tr><td class="var">모집시기</td><td class="type">String</td><td class="detail">모집 시기, 예: 정시</td></tr>
+              <tr><td class="var">입시유형</td><td class="type">String</td><td class="detail">입시 유형, 예: 수능위주</td></tr>
+              <tr><td class="var">세부 전형명</td><td class="type">String</td><td class="detail">가군/나군/다군 등 세부 전형명</td></tr>
+              <tr><td class="var">모집단위/학과명</td><td class="type">String</td><td class="detail">모집 학과 또는 모집단위명</td></tr>
+              <tr><td class="var">모집인원</td><td class="type">Integer</td><td class="detail">해당 전형 모집 인원</td></tr>
+              <tr><td class="var">경쟁률</td><td class="type">Float</td><td class="detail">해당 모집단위 경쟁률</td></tr>
+              <tr><td class="var">충원합격순위</td><td class="type">Integer</td><td class="detail">추가 합격 최종 순위</td></tr>
+              <tr><td class="var">대학별 환산점수 50% cut</td><td class="type">Float</td><td class="detail">합격자 기준 대학별 환산점수 50% 컷</td></tr>
+              <tr><td class="var">대학별 환산점수 70% cut</td><td class="type">Float</td><td class="detail">합격자 기준 대학별 환산점수 70% 컷</td></tr>
+              <tr><td class="var">대학별 환산점수 90% cut</td><td class="type">Float</td><td class="detail">합격자 기준 대학별 환산점수 90% 컷</td></tr>
+              <tr><td class="var">환산점수 총점</td><td class="type">Float</td><td class="detail">대학별 환산점수 만점</td></tr>
+              <tr><td class="var">수능 백분위 50% cut</td><td class="type">Float</td><td class="detail">합격자 수능 백분위 50% 컷</td></tr>
+              <tr><td class="var">수능 백분위 70% cut</td><td class="type">Float</td><td class="detail">합격자 수능 백분위 70% 컷</td></tr>
+              <tr><td class="var">수능 백분위 90% cut</td><td class="type">Float</td><td class="detail">합격자 수능 백분위 90% 컷</td></tr>
+              <tr><td class="var">백분위 70% cut 평균</td><td class="type">Float</td><td class="detail">주요 수능 영역 백분위 70% 컷 평균</td></tr>
+              <tr><td class="var">수능 국어 50% 성적</td><td class="type">Float</td><td class="detail">국어 영역 50% 컷 성적</td></tr>
+              <tr><td class="var">수능 수학 50% 성적</td><td class="type">Float</td><td class="detail">수학 영역 50% 컷 성적</td></tr>
+              <tr><td class="var">수능 탐구1 50% 성적</td><td class="type">Float</td><td class="detail">탐구 1과목 50% 컷 성적</td></tr>
+              <tr><td class="var">수능 탐구2 50% 성적</td><td class="type">Float</td><td class="detail">탐구 2과목 50% 컷 성적</td></tr>
+              <tr><td class="var">수능 영어 50% 등급</td><td class="type">Float</td><td class="detail">영어 영역 50% 컷 등급</td></tr>
+              <tr><td class="var">수능 한국사 50% 등급</td><td class="type">Float</td><td class="detail">한국사 영역 50% 컷 등급</td></tr>
+              <tr><td class="var">수능 국어 70% 성적</td><td class="type">Float</td><td class="detail">국어 영역 70% 컷 성적</td></tr>
+              <tr><td class="var">수능 수학 70% 성적</td><td class="type">Float</td><td class="detail">수학 영역 70% 컷 성적</td></tr>
+              <tr><td class="var">수능 탐구1 70% 성적</td><td class="type">Float</td><td class="detail">탐구 1과목 70% 컷 성적</td></tr>
+              <tr><td class="var">수능 탐구2 70% 성적</td><td class="type">Float</td><td class="detail">탐구 2과목 70% 컷 성적</td></tr>
+              <tr><td class="var">수능 영어 70% 등급</td><td class="type">Float</td><td class="detail">영어 영역 70% 컷 등급</td></tr>
+              <tr><td class="var">수능 한국사 70% 등급</td><td class="type">Float</td><td class="detail">한국사 영역 70% 컷 등급</td></tr>
+              <tr><td class="var">수학 선택 확률과통계 응시비율(%)</td><td class="type">Float</td><td class="detail">합격자 또는 지원자 중 확률과통계 선택 비율</td></tr>
+              <tr><td class="var">수학 선택 미적분 응시비율(%)</td><td class="type">Float</td><td class="detail">합격자 또는 지원자 중 미적분 선택 비율</td></tr>
+              <tr><td class="var">수학 선택 기하 응시비율(%)</td><td class="type">Float</td><td class="detail">합격자 또는 지원자 중 기하 선택 비율</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/정시_입결_데이터_종합대.xlsx" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 정시 입결 전문대 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V6M17 16v-5"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">정시_입결_데이터_전문대.xlsx</span>
+          <span class="file-desc">정시 입결 데이터 (전문대) · 전공별 경쟁률·합격자 평균/최저 성적</span>
+        </span>
+        <span class="file-dim">18 COL / 3,122 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">지역</td><td class="type">String</td><td class="detail">대학 소재 지역</td></tr>
+              <tr><td class="var">대학명</td><td class="type">String</td><td class="detail">대학 이름</td></tr>
+              <tr><td class="var">모집시기</td><td class="type">String</td><td class="detail">모집 시기, 예: 정시모집</td></tr>
+              <tr><td class="var">전공명</td><td class="type">String</td><td class="detail">모집 전공 또는 학과명</td></tr>
+              <tr><td class="var">모집시기별_입학정원</td><td class="type">Integer</td><td class="detail">해당 모집시기 기준 입학정원 또는 모집 인원</td></tr>
+              <tr><td class="var">주야</td><td class="type">String</td><td class="detail">주간/야간 구분</td></tr>
+              <tr><td class="var">전형구분_1</td><td class="type">String</td><td class="detail">상위 전형 구분, 예: 일반전형</td></tr>
+              <tr><td class="var">전형구분_2</td><td class="type">String</td><td class="detail">세부 전형 구분</td></tr>
+              <tr><td class="var">점수산출기준_수능</td><td class="type">String</td><td class="detail">수능 성적 산출 기준</td></tr>
+              <tr><td class="var">점수산출기준_학생부</td><td class="type">String</td><td class="detail">학생부 성적 산출 기준</td></tr>
+              <tr><td class="var">경쟁률</td><td class="type">Float</td><td class="detail">해당 전공/전형 경쟁률</td></tr>
+              <tr><td class="var">합격자평균_수능</td><td class="type">Float</td><td class="detail">합격자 평균 수능 성적</td></tr>
+              <tr><td class="var">합격자평균_학생부</td><td class="type">Float</td><td class="detail">합격자 평균 학생부 성적</td></tr>
+              <tr><td class="var">합격자최저_수능</td><td class="type">Float</td><td class="detail">합격자 최저 수능 성적</td></tr>
+              <tr><td class="var">합격자최저_학생부</td><td class="type">Float</td><td class="detail">합격자 최저 학생부 성적</td></tr>
+              <tr><td class="var">기준학년도</td><td class="type">Integer</td><td class="detail">입결 기준 학년도</td></tr>
+              <tr><td class="var">대학코드</td><td class="type">Integer/String</td><td class="detail">대학 식별 코드</td></tr>
+              <tr><td class="var">pageIndex</td><td class="type">Integer</td><td class="detail">크롤링 당시 원천 페이지 번호</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/정시_입결_데이터_전문대.xlsx" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 정시 전형별 주요사항 종합대 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">정시_전형별_주요사항_종합대.csv</span>
+          <span class="file-desc">정시 전형별 주요사항 (종합대) · 영역별 반영비율·환산식·등급 환산표</span>
+        </span>
+        <span class="file-dim">31 COL / 982 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">input_row_index</td><td class="type">Integer</td><td class="detail">원본 입력 데이터의 행 번호</td></tr>
+              <tr><td class="var">대학코드</td><td class="type">Integer</td><td class="detail">대학 식별 코드</td></tr>
+              <tr><td class="var">대학명</td><td class="type">String</td><td class="detail">대학 이름</td></tr>
+              <tr><td class="var">캠퍼스</td><td class="type">String</td><td class="detail">본교/분교 등 캠퍼스 구분</td></tr>
+              <tr><td class="var">지역</td><td class="type">String</td><td class="detail">대학 소재 지역</td></tr>
+              <tr><td class="var">수능전형 상태</td><td class="type">String</td><td class="detail">수능 전형 정보 수집 상태</td></tr>
+              <tr><td class="var">source_url</td><td class="type">String</td><td class="detail">원천 페이지 URL</td></tr>
+              <tr><td class="var">parse_source</td><td class="type">String</td><td class="detail">파싱에 사용한 원천 유형, 예: json/html/text</td></tr>
+              <tr><td class="var">parse_quality</td><td class="type">String</td><td class="detail">파싱 품질 또는 검토 필요 여부</td></tr>
+              <tr><td class="var">source_table_indices</td><td class="type">String</td><td class="detail">파싱에 사용된 원본 표 번호</td></tr>
+              <tr><td class="var">모집단위</td><td class="type">String</td><td class="detail">모집단위 또는 학과 범위</td></tr>
+              <tr><td class="var">전형구분</td><td class="type">String</td><td class="detail">일반전형, 지역인재전형 등 전형 구분</td></tr>
+              <tr><td class="var">전형계열</td><td class="type">String</td><td class="detail">인문, 자연, 예체능 등 계열</td></tr>
+              <tr><td class="var">전형요소_수능반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 수능 반영 비율</td></tr>
+              <tr><td class="var">전형요소_학생부반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 학생부 반영 비율</td></tr>
+              <tr><td class="var">점수활용지표</td><td class="type">String</td><td class="detail">수능 점수 활용 방식, 예: 표준점수, 백분위, 등급, 변환표준점수</td></tr>
+              <tr><td class="var">반영점수 (총점)</td><td class="type">Float/String</td><td class="detail">대학별 수능 환산점수 총점</td></tr>
+              <tr><td class="var">반영점수_산출식(환산계산식)</td><td class="type">String</td><td class="detail">수능 환산점수 산출 공식 또는 원문 설명</td></tr>
+              <tr><td class="var">국어_반영비율(%)</td><td class="type">Float/String</td><td class="detail">국어 영역 반영 비율 또는 조건형 반영 설명</td></tr>
+              <tr><td class="var">수학_반영비율(%)</td><td class="type">Float/String</td><td class="detail">수학 영역 반영 비율 또는 조건형 반영 설명</td></tr>
+              <tr><td class="var">영어_반영비율(%)</td><td class="type">Float/String</td><td class="detail">영어 영역 반영 비율 또는 조건형 반영 설명</td></tr>
+              <tr><td class="var">탐구_반영비율(%)</td><td class="type">Float/String</td><td class="detail">탐구 영역 반영 비율 또는 조건형 반영 설명</td></tr>
+              <tr><td class="var">탐구_반영과목수</td><td class="type">Integer</td><td class="detail">탐구 반영 과목 수</td></tr>
+              <tr><td class="var">탐구_반영기준</td><td class="type">String</td><td class="detail">탐구 반영 기준, 예: 평균, 상위 1과목</td></tr>
+              <tr><td class="var">선택과목_필수지정_여부</td><td class="type">String</td><td class="detail">수학/탐구 선택과목 필수 지정 여부 및 조건</td></tr>
+              <tr><td class="var">가산점_부여_내역</td><td class="type">String</td><td class="detail">선택과목, 과탐, 한국사 등 가산점 부여 내용</td></tr>
+              <tr><td class="var">제2외국어/한문_탐구대체_여부</td><td class="type">String</td><td class="detail">제2외국어/한문 탐구 대체 가능 여부</td></tr>
+              <tr><td class="var">영어_반영방법</td><td class="type">String</td><td class="detail">영어 반영 방식, 예: 비율반영, 가산점, 감점, 필수응시</td></tr>
+              <tr><td class="var">영어_등급별_환산표</td><td class="type">JSON String</td><td class="detail">영어 1~9등급별 환산점수 또는 배점표</td></tr>
+              <tr><td class="var">한국사_반영방법</td><td class="type">String</td><td class="detail">한국사 반영 방식, 예: 가산점, 감점, 필수응시</td></tr>
+              <tr><td class="var">한국사_등급별_환산표(또는 가감점표)</td><td class="type">JSON String</td><td class="detail">한국사 등급별 환산점수, 가산점 또는 감점표</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/정시_전형별_주요사항_종합대.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 정시 전형별 주요사항 전문대 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">정시_전형별_주요사항_전문대.xlsx</span>
+          <span class="file-desc">정시 전형별 주요사항 (전문대) · 학과 단위 전형방법·반영비율 상세</span>
+        </span>
+        <span class="file-dim">49 COL / 2,765 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">source_section_titles</td><td class="type">String</td><td class="detail">원본에서 수집된 전형 주요사항 섹션 제목 목록</td></tr>
+              <tr><td class="var">수집일시</td><td class="type">DateTime/String</td><td class="detail">데이터 수집 일시</td></tr>
+              <tr><td class="var">학년도</td><td class="type">Integer</td><td class="detail">입시 기준 학년도</td></tr>
+              <tr><td class="var">대학코드</td><td class="type">Integer</td><td class="detail">대학 식별 코드</td></tr>
+              <tr><td class="var">대학명</td><td class="type">String</td><td class="detail">대학 이름</td></tr>
+              <tr><td class="var">캠퍼스</td><td class="type">String</td><td class="detail">본교/분교 등 캠퍼스 구분</td></tr>
+              <tr><td class="var">지역</td><td class="type">String</td><td class="detail">대학 소재 지역</td></tr>
+              <tr><td class="var">학과코드</td><td class="type">String</td><td class="detail">학과 식별 코드</td></tr>
+              <tr><td class="var">학과명</td><td class="type">String</td><td class="detail">모집 학과명</td></tr>
+              <tr><td class="var">모집시기</td><td class="type">String</td><td class="detail">모집 시기, 예: 정시모집</td></tr>
+              <tr><td class="var">전형유형</td><td class="type">String</td><td class="detail">전형 유형, 예: 수능위주</td></tr>
+              <tr><td class="var">전형명</td><td class="type">String</td><td class="detail">세부 전형명</td></tr>
+              <tr><td class="var">전형경로</td><td class="type">String</td><td class="detail">전형유형과 전형명을 결합한 경로</td></tr>
+              <tr><td class="var">전형방법</td><td class="type">String</td><td class="detail">전형요소 조합, 예: 수능100%</td></tr>
+              <tr><td class="var">모집인원</td><td class="type">Integer</td><td class="detail">해당 학과/전형 모집 인원</td></tr>
+              <tr><td class="var">모집단위</td><td class="type">String</td><td class="detail">모집단위명</td></tr>
+              <tr><td class="var">전형구분</td><td class="type">String</td><td class="detail">일반전형, 특별전형, 대학자체기준 등 전형 구분</td></tr>
+              <tr><td class="var">전형계열</td><td class="type">String</td><td class="detail">보건, 공학, 인문사회 등 계열</td></tr>
+              <tr><td class="var">전형계열_추정근거</td><td class="type">String</td><td class="detail">전형계열을 추정한 기준 또는 근거</td></tr>
+              <tr><td class="var">전형요소_수능반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 수능 반영 비율</td></tr>
+              <tr><td class="var">전형요소_학생부반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 학생부 반영 비율</td></tr>
+              <tr><td class="var">전형요소_면접반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 면접 반영 비율</td></tr>
+              <tr><td class="var">전형요소_실기반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 실기 반영 비율</td></tr>
+              <tr><td class="var">전형요소_서류반영비율(%)</td><td class="type">Float</td><td class="detail">전형 전체 기준 서류 반영 비율</td></tr>
+              <tr><td class="var">점수활용지표</td><td class="type">String</td><td class="detail">수능 점수 활용 방식, 예: 백분위, 표준점수, 등급</td></tr>
+              <tr><td class="var">점수활용지표_원코드</td><td class="type">Integer/String</td><td class="detail">원천 데이터의 점수활용지표 코드</td></tr>
+              <tr><td class="var">반영점수 (총점)</td><td class="type">Float/String</td><td class="detail">대학별 수능 환산점수 총점</td></tr>
+              <tr><td class="var">반영점수_산출식(환산계산식)</td><td class="type">String</td><td class="detail">수능 환산점수 산출 공식 또는 반영방법 원문</td></tr>
+              <tr><td class="var">국어_반영비율(%)</td><td class="type">Float</td><td class="detail">국어 영역 반영 비율</td></tr>
+              <tr><td class="var">국어_세부반영비율_JSON</td><td class="type">JSON String</td><td class="detail">국어 영역 내 세부 선택/조건별 반영비율</td></tr>
+              <tr><td class="var">수학_반영비율(%)</td><td class="type">Float</td><td class="detail">수학 영역 반영 비율</td></tr>
+              <tr><td class="var">수학_세부반영비율_JSON</td><td class="type">JSON String</td><td class="detail">수학 영역 내 세부 선택/조건별 반영비율</td></tr>
+              <tr><td class="var">영어_반영비율(%)</td><td class="type">Float</td><td class="detail">영어 영역 반영 비율</td></tr>
+              <tr><td class="var">탐구_반영비율(%)</td><td class="type">Float</td><td class="detail">탐구 영역 반영 비율</td></tr>
+              <tr><td class="var">탐구_반영비율_추정여부</td><td class="type">String/Boolean</td><td class="detail">탐구 반영비율이 명시값인지 추정값인지 여부</td></tr>
+              <tr><td class="var">탐구_반영과목수</td><td class="type">Integer</td><td class="detail">탐구 반영 과목 수</td></tr>
+              <tr><td class="var">탐구_반영기준</td><td class="type">String</td><td class="detail">탐구 반영 기준, 예: 상위 1과목, 평균</td></tr>
+              <tr><td class="var">탐구_반영방법_원문</td><td class="type">String</td><td class="detail">탐구 영역 반영방법 원문</td></tr>
+              <tr><td class="var">제2외국어/한문_반영비율(%)</td><td class="type">Float</td><td class="detail">제2외국어/한문 반영 비율</td></tr>
+              <tr><td class="var">제2외국어/한문_탐구대체_여부</td><td class="type">String</td><td class="detail">제2외국어/한문 탐구 대체 가능 여부</td></tr>
+              <tr><td class="var">선택과목_필수지정_여부</td><td class="type">String</td><td class="detail">수능 선택과목 필수 지정 조건</td></tr>
+              <tr><td class="var">가산점_부여_내역</td><td class="type">String</td><td class="detail">가산점 또는 감점 부여 내역</td></tr>
+              <tr><td class="var">영어_반영방법</td><td class="type">String</td><td class="detail">영어 반영 방식, 예: 비율반영, 가산점, 등급별 환산</td></tr>
+              <tr><td class="var">영어_등급별_환산표</td><td class="type">JSON String</td><td class="detail">영어 등급별 환산점수 또는 배점표</td></tr>
+              <tr><td class="var">한국사_반영방법</td><td class="type">String</td><td class="detail">한국사 반영 방식, 예: 가산점, 필수응시, 등급별 환산</td></tr>
+              <tr><td class="var">한국사_등급별_환산표(또는 가감점표)</td><td class="type">JSON String</td><td class="detail">한국사 등급별 환산점수, 가산점 또는 감점표</td></tr>
+              <tr><td class="var">학생부없는자_반영방법</td><td class="type">String</td><td class="detail">검정고시 등 학생부 없는 지원자의 성적 반영 방식</td></tr>
+              <tr><td class="var">특별전형_지원자격_요약</td><td class="type">String</td><td class="detail">특별전형 지원자격 요약</td></tr>
+              <tr><td class="var">동점자처리기준</td><td class="type">String</td><td class="detail">동점자 발생 시 우선순위 처리 기준</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/정시_전형별_주요사항_전문대.xlsx" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 논술 전형 데이터 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">논술_전형_데이터.xlsx</span>
+          <span class="file-desc">논술 전형 데이터 · 논술 유형·고사일·출제범위·반영비율·변경사항</span>
+        </span>
+        <span class="file-dim">39 COL / 162 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">학년도</td><td class="type">Integer</td><td class="detail">해당 논술전형 정보가 적용되는 입학 학년도</td></tr>
+              <tr><td class="var">지역</td><td class="type">String</td><td class="detail">대학 소재 지역</td></tr>
+              <tr><td class="var">대학명</td><td class="type">String</td><td class="detail">논술전형을 운영하는 대학명</td></tr>
+              <tr><td class="var">캠퍼스</td><td class="type">String</td><td class="detail">해당 모집단위가 소속된 캠퍼스명</td></tr>
+              <tr><td class="var">전형명</td><td class="type">String</td><td class="detail">논술 관련 세부 전형명</td></tr>
+              <tr><td class="var">계열</td><td class="type">String</td><td class="detail">모집단위의 계열 구분값. 예: 인문, 자연, 의약, 통합, 정원외</td></tr>
+              <tr><td class="var">모집단위</td><td class="type">String</td><td class="detail">논술전형 모집단위 또는 모집계열명</td></tr>
+              <tr><td class="var">모집인원_2027</td><td class="type">Integer</td><td class="detail">2027학년도 논술전형 모집인원</td></tr>
+              <tr><td class="var">모집인원_2026</td><td class="type">Integer</td><td class="detail">2026학년도 논술전형 모집인원</td></tr>
+              <tr><td class="var">모집인원_증감</td><td class="type">Integer</td><td class="detail">2027학년도 모집인원에서 2026학년도 모집인원을 뺀 증감 인원</td></tr>
+              <tr><td class="var">전형방법_요약</td><td class="type">String</td><td class="detail">논술, 학생부, 출결 등 전형 요소별 반영 방식 요약</td></tr>
+              <tr><td class="var">논술반영비율</td><td class="type">Integer</td><td class="detail">전체 전형요소 중 논술고사 반영 비율</td></tr>
+              <tr><td class="var">학생부반영여부</td><td class="type">String</td><td class="detail">학생부 반영 여부. Y/N 형태</td></tr>
+              <tr><td class="var">학생부반영비율</td><td class="type">Integer</td><td class="detail">전체 전형요소 중 학생부 반영 비율</td></tr>
+              <tr><td class="var">수능최저_적용여부</td><td class="type">String</td><td class="detail">수능 최저학력기준 적용 여부</td></tr>
+              <tr><td class="var">수능최저_요약</td><td class="type">Text</td><td class="detail">수능 최저학력기준의 영역 수, 등급합, 필수 조건 요약</td></tr>
+              <tr><td class="var">필수영역</td><td class="type">Text</td><td class="detail">수능 최저 충족 시 반드시 포함해야 하는 영역 조건</td></tr>
+              <tr><td class="var">한국사조건</td><td class="type">String</td><td class="detail">한국사 필수 등급 또는 응시 조건</td></tr>
+              <tr><td class="var">논술고사일</td><td class="type">String</td><td class="detail">논술고사 시행일 정보</td></tr>
+              <tr><td class="var">수능전후</td><td class="type">String</td><td class="detail">논술고사가 수능 이전/이후에 시행되는지에 대한 구분</td></tr>
+              <tr><td class="var">고사시간</td><td class="type">String</td><td class="detail">논술고사 시험 시간. 예: 60분, 80분, 120분</td></tr>
+              <tr><td class="var">논술유형_대분류</td><td class="type">String</td><td class="detail">논술 유형의 상위 분류. 예: 언어논술, 수리논술, 약술형, 통합논술</td></tr>
+              <tr><td class="var">논술유형_상세</td><td class="type">String</td><td class="detail">논술 유형에 대한 세부 설명</td></tr>
+              <tr><td class="var">출제과목_요약</td><td class="type">Text</td><td class="detail">논술고사에서 출제되는 주요 과목 또는 제시문 유형 요약</td></tr>
+              <tr><td class="var">약술형_수학포함</td><td class="type">String</td><td class="detail">약술형 논술에서 수학 문항 포함 여부</td></tr>
+              <tr><td class="var">인문제시문_유형</td><td class="type">String</td><td class="detail">인문계열 논술의 제시문 유형. 예: 비문학, 문학, 통계자료 포함 등</td></tr>
+              <tr><td class="var">영어제시문_여부</td><td class="type">String</td><td class="detail">영어 제시문 포함 여부. Y/N 또는 확인필요 값</td></tr>
+              <tr><td class="var">인문_출제범위</td><td class="type">Text</td><td class="detail">인문계열 논술의 출제 범위. 예: 문학, 독서, 사회·도덕, 수학Ⅰ 등</td></tr>
+              <tr><td class="var">출제문항수_요약</td><td class="type">Text</td><td class="detail">전체 논술 문항 수 또는 국어·수학 문항 구성 요약</td></tr>
+              <tr><td class="var">국어문항수</td><td class="type">Integer</td><td class="detail">국어 또는 언어논술 관련 문항 수</td></tr>
+              <tr><td class="var">수학문항수</td><td class="type">Integer</td><td class="detail">수학 또는 수리논술 관련 문항 수</td></tr>
+              <tr><td class="var">수리논술_출제유형</td><td class="type">Text</td><td class="detail">수리논술의 출제 방식, 평가 방향, 문제 유형 설명</td></tr>
+              <tr><td class="var">문항구성</td><td class="type">Text</td><td class="detail">논술고사 문항 구성 상세</td></tr>
+              <tr><td class="var">수학출제범위</td><td class="type">Text</td><td class="detail">수리논술 또는 약술형 수학의 출제 범위</td></tr>
+              <tr><td class="var">과학논술_여부</td><td class="type">String</td><td class="detail">과학논술 출제 여부. Y/N 형태</td></tr>
+              <tr><td class="var">과학출제과목</td><td class="type">Text</td><td class="detail">과학논술 출제 과목. 예: 물리학, 화학, 생명과학, 통합과학 등</td></tr>
+              <tr><td class="var">평가포인트</td><td class="type">Text</td><td class="detail">논술고사에서 중점적으로 평가하는 역량</td></tr>
+              <tr><td class="var">2026대비_변경사항</td><td class="type">Text</td><td class="detail">2026학년도 대비 2027학년도 논술전형 변경사항</td></tr>
+              <tr><td class="var">변경유형</td><td class="type">String</td><td class="detail">변경사항의 유형 분류. 예: 신설, 폐지, 완화, 강화, 수능최저변경 등</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/논술_전형_데이터.xlsx" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학과 상세 리스트 -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">학과상세리스트.xlsx</span>
+          <span class="file-desc">학과 상세 리스트 · 학과별 진출분야·관련교과·직업·통계 정보</span>
+        </span>
+        <span class="file-dim">17 COL / 501 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">계열(lClass)</td><td class="type">String</td><td class="detail">학과가 속한 상위 계열명</td></tr>
+              <tr><td class="var">학과코드(majorSeq)</td><td class="type">Integer</td><td class="detail">커리어넷 학과 고유 식별 코드</td></tr>
+              <tr><td class="var">major</td><td class="type">String</td><td class="detail">학과명</td></tr>
+              <tr><td class="var">salary</td><td class="type">Float</td><td class="detail">졸업 후 평균 임금 정보</td></tr>
+              <tr><td class="var">employment</td><td class="type">String</td><td class="detail">취업률 정보</td></tr>
+              <tr><td class="var">department</td><td class="type">String</td><td class="detail">학과 설명 및 소개</td></tr>
+              <tr><td class="var">summary</td><td class="type">Text</td><td class="detail">학과 개요 및 교육 목표 설명</td></tr>
+              <tr><td class="var">relate_subject</td><td class="type">JSON</td><td class="detail">관련 고교 과목 정보 (공통·일반·진로·전문교과 등)</td></tr>
+              <tr><td class="var">career_act</td><td class="type">JSON</td><td class="detail">추천 진로 탐색 활동 정보</td></tr>
+              <tr><td class="var">job</td><td class="type">Text</td><td class="detail">관련 직업 목록</td></tr>
+              <tr><td class="var">qualifications</td><td class="type">Text</td><td class="detail">관련 자격증 목록</td></tr>
+              <tr><td class="var">interest</td><td class="type">Text</td><td class="detail">학과 적합 흥미 및 적성 설명</td></tr>
+              <tr><td class="var">property</td><td class="type">Text</td><td class="detail">학과 특성 및 교육과정 설명</td></tr>
+              <tr><td class="var">enter_field</td><td class="type">JSON</td><td class="detail">졸업 후 진출 분야 정보</td></tr>
+              <tr><td class="var">main_subject</td><td class="type">JSON</td><td class="detail">대학 전공 주요 교과목 정보</td></tr>
+              <tr><td class="var">university</td><td class="type">JSON</td><td class="detail">개설 대학 및 캠퍼스 정보</td></tr>
+              <tr><td class="var">chartData</td><td class="type">JSON</td><td class="detail">학과 통계 데이터 (성별 비율, 취업률, 만족도, 평균 임금, 입학 현황 등)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/학과상세리스트.xlsx" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 유의사항 -->
+  <section class="notice reveal">
+    <span class="ntag">⚠ NOTICE · 데이터 이용 유의사항</span>
+    <ol>
+      <li>제공 되는 데이터는 실제 데이터를 기반으로 학습에 맞게 가공한 데이터이며, 데이터에 명시된 <strong>제품명/지역/사람이름 등은 실제와 무관</strong>합니다.</li>
+      <li>DSA에서 제공되는 데이터 및 비즈니스 시나리오, 템플릿 등은 <strong>데이터스테이션의 자산</strong>입니다. 무단으로 복제·배포 시 법적 책임을 질 수 있습니다.
+        <ul class="banlist">
+          <li>블로그 / Git Hub 등에 제공된 데이터를 직접 올리는 행위</li>
+          <li>다른 공모전, 경진대회 등에 제공된 데이터를 사용하는 행위</li>
+          <li>온라인 채팅 및 커뮤니티에 제공된 데이터를 공유하는 행위</li>
+          <li>수익 및 사업을 목적으로 해당 데이터를 사용하는 행위</li>
+          <li>위의 사항을 포함하여, 제공된 데이터를 무단으로 복제 및 공유하는 기타 모든 행위</li>
+          <li class="ok">다만 데이터 분석 수행 결과, 프로젝트를 수행하며 직접 작성한 PPT(발표자료) 등은 포트폴리오에 사용 가능하니 참조 바랍니다.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <footer class="reveal">
+    <div class="brand">DSA TEAM PROJECT</div>
+    <p>SCENARIO 08 — EDUTECH</p>
+  </footer>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← STEP 00 · 주제 선정</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step01.html">STEP 01 · 과제 정의 →</a>
+  </div>
+
+</div>
+
+<script>
+  // reveal
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i*45)+'ms';io.observe(el);
+  });
+
+  // file toggle
+  document.querySelectorAll('.file-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.file-item');
+      var body=item.querySelector('.file-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+</script>
+</body>
+</html>
