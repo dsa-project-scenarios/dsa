@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반도체 공정 수율 개선 프로젝트 | DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;
+    --bg-elev:#0e0e11;
+    --bg-card:#121216;
+    --line:#26262d;
+    --line-soft:#1a1a1f;
+    --txt:#f2f2f4;
+    --txt-dim:#9a9aa6;
+    --txt-faint:#5a5a64;
+    --accent:#7c6df0;          /* Semiconductor 테마 컬러 */
+    --accent-dim:#5a4ec4;
+    --accent-glow:rgba(124,109,240,.16);
+    --warn:#ff8585;
+    --good:#3fb96e;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 18% 12%, var(--accent-glow), transparent 38%),
+      radial-gradient(circle at 85% 88%, rgba(124,109,240,.06), transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+    background-image:linear-gradient(var(--txt) 1px,transparent 1px),linear-gradient(90deg,var(--txt) 1px,transparent 1px);
+    background-size:46px 46px;
+  }
+  .wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* top bar */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    border-bottom:1px solid var(--line);
+    background:rgba(7,7,8,.85);backdrop-filter:blur(8px);
+  }
+  .topbar .bar{max-width:1080px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:14px}
+  .topbar .brandbar{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px;color:var(--txt)}
+  .topbar .brandbar .logo{width:30px;height:30px;flex:0 0 30px;overflow:hidden;display:grid;place-items:center}
+  .topbar .brandbar .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .topbar .brandbar small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* header */
+  header{padding:54px 0 24px;text-align:center}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow .cat-pill{
+    background:var(--accent);color:#0a0618;font-weight:700;
+    padding:3px 10px;border-radius:5px;letter-spacing:1px;
+  }
+  h1{
+    font-family:'Archivo','Noto Sans KR',sans-serif;
+    font-weight:800;
+    font-size:clamp(30px,5.4vw,54px);line-height:1.06;letter-spacing:-1px;
+    color:#ffffff;
+  }
+  .subkr{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--txt-faint);margin-top:16px;text-transform:uppercase}
+  .rule{width:60px;height:2px;background:var(--accent);margin:24px auto 0;border-radius:2px}
+
+  /* section head */
+  .section-head{margin:54px 0 24px}
+  .section-head .num{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent)}
+  .section-head h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;margin-top:4px}
+  .section-head .sub{color:var(--txt-faint);font-size:13.5px;font-weight:300;margin-top:2px}
+
+  /* scenario body */
+  .scenario{
+    background:var(--bg-card);
+    border:1px solid var(--line-soft);border-left:3px solid var(--accent);
+    border-radius:14px;padding:30px 36px;
+  }
+  .scenario .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;
+    letter-spacing:2px;color:var(--accent);border:1px solid var(--accent-dim);
+    padding:4px 12px;border-radius:20px;margin-bottom:20px;
+  }
+  .scenario p{color:var(--txt-dim);font-size:15px;font-weight:300;margin-bottom:18px}
+  .scenario p:last-child{margin-bottom:0}
+  .scenario p strong{color:var(--txt);font-weight:500}
+  .scenario p .hl{color:var(--accent);font-weight:500}
+
+  /* process flow */
+  .flow{
+    display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-top:6px;
+  }
+  .flow .node{
+    flex:1;min-width:96px;background:var(--bg-card);border:1px solid var(--line-soft);
+    border-radius:11px;padding:16px 12px;text-align:center;position:relative;
+    transition:transform .25s,border-color .25s;
+  }
+  .flow .node:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+  .flow .node .pn{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px}
+  .flow .node .pk{font-size:13.5px;font-weight:700;color:var(--txt);margin-top:4px}
+  .flow .node .pe{font-family:var(--mono);font-size:10px;color:var(--txt-faint);margin-top:2px}
+  .flow .node.qc{border-color:color-mix(in srgb,var(--warn) 40%,var(--line));background:rgba(255,133,133,.05)}
+  .flow .node.qc .pn{color:var(--warn)}
+  .flow .arrow{display:flex;align-items:center;justify-content:center;color:var(--txt-faint);font-family:var(--mono);padding:0 6px;font-size:15px}
+  @media(max-width:720px){.flow{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.flow .arrow{display:none}}
+
+  /* objectives */
+  .obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .obj{
+    position:relative;background:var(--bg-card);
+    border:1px solid var(--line-soft);border-radius:13px;
+    padding:24px;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease;
+  }
+  .obj::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
+    transform:scaleY(0);transform-origin:top;transition:transform .35s ease;
+  }
+  .obj:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .obj:hover::before{transform:scaleY(1)}
+  .obj .n{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--accent-dim);border-radius:7px;
+    width:34px;height:34px;display:grid;place-items:center;margin-bottom:14px;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+  }
+  .obj p{font-size:14px;color:var(--txt-dim);font-weight:400;line-height:1.6}
+  .obj p strong{color:var(--txt);font-weight:500}
+
+  /* data files / toggle */
+  .files{display:grid;gap:14px}
+  .file-item{
+    border:1px solid var(--line-soft);border-radius:13px;background:var(--bg-card);overflow:hidden;
+    transition:border-color .25s;
+  }
+  .file-item.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .file-head{
+    width:100%;border:0;background:transparent;cursor:pointer;color:var(--txt);
+    display:flex;align-items:center;gap:16px;padding:18px 22px;text-align:left;font-family:'Noto Sans KR',sans-serif;
+  }
+  .file-head:hover{background:var(--bg-elev)}
+  .file-ico{
+    width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+    display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+    border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  }
+  .file-ico svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .file-meta{flex:1;min-width:0}
+  .file-name{font-family:var(--mono);font-size:13.5px;font-weight:700;color:var(--txt);word-break:break-all}
+  .file-desc{font-size:12.5px;color:var(--txt-faint);margin-top:3px}
+  .file-dim{
+    font-family:var(--mono);font-size:10.5px;color:var(--accent);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;white-space:nowrap;
+  }
+  .chev{width:20px;height:20px;flex-shrink:0;color:var(--txt-dim);stroke:currentColor;fill:none;stroke-width:2;transition:transform .3s}
+  .file-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .file-body{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .file-inner{padding:4px 22px 24px}
+
+  /* dictionary table */
+  .dict{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .dict th,.dict td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .dict thead th{
+    background:var(--bg-elev);font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;
+    color:var(--txt-faint);text-transform:uppercase;font-weight:500;position:sticky;top:0;
+  }
+  .dict td.var{font-family:var(--mono);font-weight:700;color:var(--txt);white-space:nowrap}
+  .dict td.type{font-family:var(--mono);font-size:11.5px;color:var(--accent);white-space:nowrap}
+  .dict td.detail{color:var(--txt-dim)}
+  .dict tbody tr:hover{background:rgba(124,109,240,.06)}
+  .table-scroll{overflow:auto;max-height:460px;border-radius:8px;border:1px solid var(--line-soft)}
+  .table-scroll .dict{margin-top:0}
+  .table-scroll .dict th,.table-scroll .dict td{border-top:0}
+  .download-note{
+    margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--txt-faint);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .download-note a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-dim)}
+  .download-note a:hover{color:#a99cff}
+
+  /* notice / disclaimer */
+  .notice{
+    margin-top:54px;border:1px solid rgba(255,133,133,.28);border-left:3px solid var(--warn);
+    border-radius:13px;background:linear-gradient(90deg,rgba(255,133,133,.06),transparent 70%);
+    padding:26px 30px;
+  }
+  .notice .ntag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--warn);
+    border:1px solid rgba(255,133,133,.4);padding:4px 12px;border-radius:20px;margin-bottom:18px;
+  }
+  .notice ol{list-style:none;counter-reset:nt;display:grid;gap:14px}
+  .notice ol > li{
+    position:relative;padding-left:34px;font-size:14px;color:var(--txt-dim);line-height:1.65;
+  }
+  .notice ol > li::before{
+    counter-increment:nt;content:counter(nt);
+    position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:6px;
+    background:rgba(255,133,133,.14);border:1px solid rgba(255,133,133,.4);
+    color:var(--warn);font-family:var(--mono);font-size:11px;font-weight:700;
+    display:grid;place-items:center;
+  }
+  .notice ol > li strong{color:var(--txt);font-weight:500}
+  .notice ul.banlist{list-style:none;margin:14px 0 0 0;display:grid;gap:9px}
+  .notice ul.banlist li{
+    position:relative;padding:10px 14px 10px 34px;font-size:13.5px;color:#ffffff;font-weight:500;
+    background:var(--bg-card);border:1px solid var(--line-soft);border-radius:8px;line-height:1.55;
+  }
+  .notice ul.banlist li::before{
+    content:"✕";position:absolute;left:13px;top:10px;color:var(--warn);font-size:12px;font-weight:700;
+  }
+  .notice ul.banlist li.ok{border-color:rgba(63,185,110,.3);color:var(--txt-dim);font-weight:400}
+  .notice ul.banlist li.ok::before{content:"✓";color:var(--good)}
+
+  /* footer */
+  footer{
+    margin:54px 0 30px;padding-top:30px;border-top:1px solid var(--line-soft);text-align:center;
+  }
+  footer .brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--txt-dim)}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:1px;margin-top:6px}
+
+  /* pager */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:24px 0 60px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--bg-card);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:820px){.obj-grid{grid-template-columns:1fr}}
+  @media(max-width:520px){
+    .scenario{padding:24px 20px}
+    .file-head{padding:16px;gap:12px}
+    .file-inner{padding:4px 14px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="bar">
+    <div class="brandbar">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← 주제 선정으로</a></nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow reveal"><span class="cat-pill">HARDWARE</span> Semiconductor · Scenario 02</div>
+    <h1 class="reveal">반도체 공정<br>수율 개선 프로젝트</h1>
+    <div class="subkr reveal">Wafer Fab Process Optimization &amp; Yield Improvement</div>
+    <div class="rule reveal"></div>
+  </header>
+
+  <!-- 비즈니스 시나리오 -->
+  <div class="section-head reveal">
+    <div class="num">// 01</div>
+    <h2>Business Scenario</h2>
+    <div class="sub">비즈니스 시나리오</div>
+  </div>
+
+  <section class="scenario reveal">
+    <span class="tag">BUSINESS SCENARIO</span>
+    <p>T사는 Wafer라는 집적 회로를 제작하기 위하여 필요한 실리콘 소재를 처리하여, 여러 가지 종류의 반도체 부품을 생산하는 회사로 기술 경쟁력을 인정받는 회사이다. 반도체 소자는 산화(Oxidation), 포토(Photo Softbake / Lithography), 식각(Etching), 이온 주입(Ion Implantation) 등 8개의 주요 공정을 거쳐서 생산되며, 각 공정 간에는 제품의 불량을 확인하는 <span class="hl">품질 검사(Quality Inspection)</span>를 실시하고, 일정량 이상의 불량이 발생할 경우, 공정에서 사용하는 Parameter(온도, 압력, 노출 에너지, 이온 주입량 등)를 조정하여 불량이 낮아질 수 있도록 작업 조건을 작업자가 통제한다.</p>
+
+    <p>T사는 여러 협력 업체들과의 지속적인 협업을 통하여 지속적으로 성장 중에 있는 회사로, 최근에는 Wearable Device나 IoT, 자동차 전장에 들어가는 반도체 부품 제작을 추가로 수주 받아 매출이 매년 증가하고 있다. 특히 AI 데이터센터와 전장·로봇 등으로 전력반도체 및 주문형 반도체 수요가 급증하고, 삼성전자·TSMC 등 대형 업체들이 첨단 미세공정에 집중하며 8인치 레거시 파운드리 비중을 축소함에 따라, T사와 같은 성숙(레거시) 공정 기반 업체로 주문이 몰리면서 생산 라인은 사실상 <strong>풀가동(가동률 90% 이상)</strong> 상태에 진입하였다.</p>
+
+    <p>그러나 호황의 이면에는 위기 요인이 동시에 존재한다. 첫째, 주문 폭증으로 공정 작업량이 한계까지 늘어나면서 장비(Chamber)들의 부하가 누적되고, 이에 따라 생산된 제품의 불량률이 상승하고 있다. 풀가동 상태에서는 라인을 멈추거나 여유 캐파를 확보하기 어려워, 불량으로 인한 재작업·폐기 손실이 곧바로 납기 지연과 기회비용으로 직결되고 있다. 둘째, 중국 업체들이 가격 경쟁력과 안정적 공급을 앞세워 범용·성숙공정 시장을 빠르게 잠식하고 있어, 단가 경쟁만으로는 입지를 지키기 어렵고 품질과 수율을 통한 차별화가 절실한 상황이다. 셋째, 현재의 공급자 우위 시장 구조상 수율을 끌어올려 불량을 줄이면 이를 단가·마진으로 직접 환산할 수 있어, 품질 개선이 가져다주는 사업적 가치가 그 어느 때보다 크다.</p>
+
+    <p>현재의 기회를 살리고 위기 요인을 극복하기 위하여 T사는 데이터 분석팀을 구성하여 <strong>2026년 1월부터 수집된 공정별 데이터(Oxidation, Photo, Lithography, Etching, Ion Implantation 및 Quality Inspection)</strong>를 활용해 공정의 문제는 무엇인지, 풀가동 상황에서 공정 흐름을 효율화하고 장비 부하를 관리하기 위한 방안에 대하여 데이터 분석을 실시하고, 품질 개선 및 제품의 불량률을 낮추고자 한다.</p>
+  </section>
+
+  <!-- 공정 흐름 -->
+  <div class="section-head reveal">
+    <div class="num">// 02</div>
+    <h2>Process Flow</h2>
+    <div class="sub">주요 공정 흐름 · 각 공정 사이에 품질 검사(QC) 수행</div>
+  </div>
+
+  <div class="flow reveal">
+    <div class="node"><div class="pn">STEP 1</div><div class="pk">산화</div><div class="pe">Oxidation</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="pn">STEP 2</div><div class="pk">포토</div><div class="pe">Photo Softbake</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="pn">STEP 3</div><div class="pk">노광</div><div class="pe">Lithography</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="pn">STEP 4</div><div class="pk">식각</div><div class="pe">Etching</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="pn">STEP 5</div><div class="pk">이온 주입</div><div class="pe">Ion Implant.</div></div>
+    <div class="arrow">→</div>
+    <div class="node qc"><div class="pn">CHECK</div><div class="pk">품질 검사</div><div class="pe">Quality Insp.</div></div>
+  </div>
+
+  <!-- 목적 -->
+  <div class="section-head reveal">
+    <div class="num">// 03</div>
+    <h2>Objectives</h2>
+    <div class="sub">프로젝트 목적</div>
+  </div>
+
+  <div class="obj-grid">
+    <div class="obj reveal">
+      <div class="n">01</div>
+      <p>제품 제조 공정과 데이터 발생 요소에 대하여 <strong>명확히 파악</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">02</div>
+      <p>공정 별로 부하를 확인하고, <strong>최적화할 수 있는 방안</strong>에 대하여 파악</p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">03</div>
+      <p>공정 흐름에 따른 불량 발생을 확인하고, <strong>품질을 모니터링 할 수 있는 시스템</strong>을 구성</p>
+    </div>
+  </div>
+
+  <!-- 제공 데이터 -->
+  <div class="section-head reveal">
+    <div class="num">// 04</div>
+    <h2>Provided Data</h2>
+    <div class="sub">제공 데이터 · 데이터 변수 정의서 (클릭하여 펼치기) · 공통 키: No_Die / Lot_Num / Wafer_Num</div>
+  </div>
+
+  <div class="files reveal">
+
+    <!-- Oxidation -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Oxidation.csv</span>
+          <span class="file-desc">산화 공정 · Chamber 온도·압력·시간·산화막 두께</span>
+        </span>
+        <span class="file-dim">13 COL / 17,040 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">No_Die</td><td class="type">ID</td><td class="detail">공정에 들어가는 하나의 Wafer 고유 ID</td></tr>
+              <tr><td class="var">Lot_Num</td><td class="type">연속형</td><td class="detail">공정 생산 단위, 하나의 단위에 같은 Process가 작동</td></tr>
+              <tr><td class="var">Wafer_Num</td><td class="type">연속형</td><td class="detail">하나의 Lot 내 Wafer 번호</td></tr>
+              <tr><td class="var">Ox_Chamber</td><td class="type">연속형</td><td class="detail">Process별 Chamber Number</td></tr>
+              <tr><td class="var">process</td><td class="type">범주형</td><td class="detail">현재 진행되고 있는 공정 Process</td></tr>
+              <tr><td class="var">type</td><td class="type">범주형</td><td class="detail">Oxidation 공정에서 실행되는 Process Type, Dry와 Wet 방식 존재</td></tr>
+              <tr><td class="var">Datetime</td><td class="type">범주형</td><td class="detail">공정이 시작된 날짜</td></tr>
+              <tr><td class="var">Temp_Oxid</td><td class="type">연속형</td><td class="detail">공정이 수행되는 동안 Chamber 내 평균 온도 (℃ 단위)</td></tr>
+              <tr><td class="var">Vapor</td><td class="type">연속형</td><td class="detail">공정에 투여되는 합성물 성분</td></tr>
+              <tr><td class="var">ppm</td><td class="type">연속형</td><td class="detail">공정에 투여되는 합성물의 량 (ppm 단위)</td></tr>
+              <tr><td class="var">Pressure</td><td class="type">연속형</td><td class="detail">공정이 진행되는 동안 공정에 가해지는 압력 (Torr 단위)</td></tr>
+              <tr><td class="var">Oxid_Time</td><td class="type">연속형</td><td class="detail">산화공정이 진행된 시간 (분 단위)</td></tr>
+              <tr><td class="var">Thinkness</td><td class="type">연속형</td><td class="detail">산화공정이 완료된 후 성장한 산화물의 두께 (nm 단위) · 이론상 700nm 이상 되어야 다음 공정을 정상적으로 진행할 수 있음</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/Oxidation.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo softbake -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M5.6 18.4l2.1-2.1M12 18v3M18.4 18.4l-2.1-2.1M21 12h-3M18.4 5.6l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Photo_softbake.csv</span>
+          <span class="file-desc">포토 소프트베이크 · HMDS·Spin Coat·Resist 균일도</span>
+        </span>
+        <span class="file-dim">18 COL / 17,040 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">No_Die</td><td class="type">ID</td><td class="detail">공정에 들어가는 하나의 Wafer 고유 ID</td></tr>
+              <tr><td class="var">Lot_Num</td><td class="type">연속형</td><td class="detail">공정 생산 단위, 하나의 단위에 같은 Process가 작동</td></tr>
+              <tr><td class="var">Wafer_Num</td><td class="type">연속형</td><td class="detail">하나의 Lot 내 Wafer 번호</td></tr>
+              <tr><td class="var">photo_soft_Chamber</td><td class="type">연속형</td><td class="detail">Process별 Chamber Number</td></tr>
+              <tr><td class="var">process 2</td><td class="type">범주형</td><td class="detail">현재 진행되고 있는 공정 Process</td></tr>
+              <tr><td class="var">Datetime</td><td class="type">범주형</td><td class="detail">공정이 시작된 날짜</td></tr>
+              <tr><td class="var">N2_HMDS</td><td class="type">연속형</td><td class="detail">HMDS 공정에서 N2 질소의 투여량 (ppm 단위)</td></tr>
+              <tr><td class="var">pressure_HMDS</td><td class="type">연속형</td><td class="detail">HMDS 공정에서 N2 산화물 생성 시 가해지는 압력 (Torr 단위)</td></tr>
+              <tr><td class="var">temp_HMDS</td><td class="type">연속형</td><td class="detail">HMDS 공정에서 N2 산화물 생성 시 가해지는 온도 (℃ 단위)</td></tr>
+              <tr><td class="var">temp_HMDS_bake</td><td class="type">연속형</td><td class="detail">N2 산화물 흡착 시 발생하는 온도 (℃ 단위)</td></tr>
+              <tr><td class="var">time_HMDS_bake</td><td class="type">연속형</td><td class="detail">N2 산화물 흡착이 진행된 시간 (초 단위)</td></tr>
+              <tr><td class="var">spin1</td><td class="type">연속형</td><td class="detail">Spin Coat 과정에서 첫 번째 회전 스핀 수 (rpm 단위)</td></tr>
+              <tr><td class="var">spin2</td><td class="type">연속형</td><td class="detail">Spin Coat 과정에서 두 번째 회전 스핀 수 (rpm 단위)</td></tr>
+              <tr><td class="var">spin3</td><td class="type">연속형</td><td class="detail">Spin Coat 과정에서 세 번째 회전 스핀 수 (rpm 단위)</td></tr>
+              <tr><td class="var">photoresist_bake</td><td class="type">연속형</td><td class="detail">Spin Coating에 투여되는 Photoresist 량 (ml 단위)</td></tr>
+              <tr><td class="var">temp_softbake</td><td class="type">연속형</td><td class="detail">투여된 Resist를 흡착시킬 때 발생한 온도 (℃ 단위)</td></tr>
+              <tr><td class="var">time_softbake</td><td class="type">연속형</td><td class="detail">투여된 Resist를 흡착시키는 동안 시간 (초 단위)</td></tr>
+              <tr><td class="var">resist_target</td><td class="type">연속형</td><td class="detail">흡착된 Resist의 최종 균일도 (1: 균일, 1 이상: 오목, 1 이하: 볼록)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/Photo_softbake.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo lithography -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 8l-4 6h8l-4-6zM6 14l-2 8M18 14l2 8M9 22h6"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Photo_lithograpy.csv</span>
+          <span class="file-desc">노광(Lithography) · UV 타입·파장·노출 에너지·Line CD</span>
+        </span>
+        <span class="file-dim">11 COL / 17,040 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">No_Die</td><td class="type">ID</td><td class="detail">공정에 들어가는 하나의 Wafer 고유 ID</td></tr>
+              <tr><td class="var">Lot_Num</td><td class="type">연속형</td><td class="detail">공정 생산 단위, 하나의 단위에 같은 Process가 작동</td></tr>
+              <tr><td class="var">Wafer_Num</td><td class="type">연속형</td><td class="detail">하나의 Lot 내 Wafer 번호</td></tr>
+              <tr><td class="var">lithography_Chamber</td><td class="type">연속형</td><td class="detail">Process별 Chamber Number</td></tr>
+              <tr><td class="var">Datetime</td><td class="type">범주형</td><td class="detail">공정이 시작된 날짜</td></tr>
+              <tr><td class="var">UV_type</td><td class="type">범주형</td><td class="detail">Lithography Exposure Laser UV 타입 (G-line / H-line / I-line)</td></tr>
+              <tr><td class="var">Wavelength</td><td class="type">연속형</td><td class="detail">UV Laser의 파장 (nm 단위)</td></tr>
+              <tr><td class="var">Resolution</td><td class="type">연속형</td><td class="detail">해상도</td></tr>
+              <tr><td class="var">Energy_Exposure</td><td class="type">연속형</td><td class="detail">Exposure Energy (mJ/cm²)</td></tr>
+              <tr><td class="var">Line_CD</td><td class="type">연속형</td><td class="detail">Lithography 결과로 그려진 Wafer의 Line Pattern 간 거리 (적정 nm: 25~55nm)</td></tr>
+              <tr><td class="var">Process 2-1</td><td class="type">범주형</td><td class="detail">공정 단계 표시 항목</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/Photo_lithograpy.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Etching -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M21 7v5h-5"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Etching.csv</span>
+          <span class="file-desc">식각(Etching) · Source Power·Selectivity·시간별 Thin Film 두께</span>
+        </span>
+        <span class="file-dim">13 COL / 17,040 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">No_Die</td><td class="type">ID</td><td class="detail">공정에 들어가는 하나의 Wafer 고유 ID</td></tr>
+              <tr><td class="var">Lot_Num</td><td class="type">연속형</td><td class="detail">공정 생산 단위, 하나의 단위에 같은 Process가 작동</td></tr>
+              <tr><td class="var">Wafer_Num</td><td class="type">연속형</td><td class="detail">하나의 Lot 내 Wafer 번호</td></tr>
+              <tr><td class="var">Etching_Chamber</td><td class="type">연속형</td><td class="detail">Process별 Chamber Number</td></tr>
+              <tr><td class="var">Process 3</td><td class="type">범주형</td><td class="detail">현재 진행되고 있는 공정 Process</td></tr>
+              <tr><td class="var">Datetime</td><td class="type">범주형</td><td class="detail">공정이 시작된 날짜</td></tr>
+              <tr><td class="var">Source Power</td><td class="type">연속형</td><td class="detail">Dry Etching Plasma Source Power (W)</td></tr>
+              <tr><td class="var">Selectivity</td><td class="type">연속형</td><td class="detail">Etching 중 선택된 (Etching 하려는) 재료만 Etching되는 비율</td></tr>
+              <tr><td class="var">Temp_Eching</td><td class="type">연속형</td><td class="detail">Etching 공정에서 사용된 온도 (℃ 단위)</td></tr>
+              <tr><td class="var">Thin Film 1</td><td class="type">연속형</td><td class="detail">Etching 실시 10분 후 Thin Film 두께 (nm 단위)</td></tr>
+              <tr><td class="var">Thin Film 2</td><td class="type">연속형</td><td class="detail">Etching 실시 20분 후 Thin Film 두께 (nm 단위)</td></tr>
+              <tr><td class="var">Thin Film 3</td><td class="type">연속형</td><td class="detail">Etching 실시 30분 후 Thin Film 두께 (nm 단위)</td></tr>
+              <tr><td class="var">Thin Film 4</td><td class="type">연속형</td><td class="detail">Etching 실시 40분 후 Thin Film 두께 (nm 단위)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/Etching.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ion Implantation -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 0 0 0 20M12 2a10 10 0 0 1 0 20M4 12l-2 0M22 12l-2 0"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Ion_Implantation.csv</span>
+          <span class="file-desc">이온 주입 · 시간대별 Flux·Plasma 에너지/전류·Annealing 온도</span>
+        </span>
+        <span class="file-dim">15 COL / 17,040 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">No_Die</td><td class="type">ID</td><td class="detail">공정에 들어가는 하나의 Wafer 고유 ID</td></tr>
+              <tr><td class="var">Lot_Num</td><td class="type">연속형</td><td class="detail">공정 생산 단위, 하나의 단위에 같은 Process가 작동</td></tr>
+              <tr><td class="var">Wafer_Num</td><td class="type">연속형</td><td class="detail">하나의 Lot 내 Wafer 번호</td></tr>
+              <tr><td class="var">Chamber_Num</td><td class="type">연속형</td><td class="detail">Process별 Chamber Number</td></tr>
+              <tr><td class="var">Process4</td><td class="type">범주형</td><td class="detail">현재 진행되고 있는 공정 Process</td></tr>
+              <tr><td class="var">Datetime</td><td class="type">범주형</td><td class="detail">공정이 시작된 날짜</td></tr>
+              <tr><td class="var">Flux60s</td><td class="type">연속형</td><td class="detail">60초 동안 주입된 이온의 양</td></tr>
+              <tr><td class="var">Flux90s</td><td class="type">연속형</td><td class="detail">90초 동안 주입된 이온의 양</td></tr>
+              <tr><td class="var">Flux160s</td><td class="type">연속형</td><td class="detail">160초 동안 주입된 이온의 양</td></tr>
+              <tr><td class="var">Flux480s</td><td class="type">연속형</td><td class="detail">480초 동안 주입된 이온의 양</td></tr>
+              <tr><td class="var">Flux840s</td><td class="type">연속형</td><td class="detail">840초 동안 주입된 이온의 양</td></tr>
+              <tr><td class="var">input_Energy</td><td class="type">연속형</td><td class="detail">주입 시 사용된 Plasma 에너지</td></tr>
+              <tr><td class="var">Temp_implantation</td><td class="type">연속형</td><td class="detail">Hydrogen Ion 주입 시 Chamber 내 온도</td></tr>
+              <tr><td class="var">Furnace_Temp</td><td class="type">연속형</td><td class="detail">Annealing Furnace 작업 시 Chamber 내 온도</td></tr>
+              <tr><td class="var">RTA_Temp</td><td class="type">연속형</td><td class="detail">RTA 작업 시 Chamber 내 온도</td></tr>
+              <tr><td class="var">Current</td><td class="type">연속형</td><td class="detail">주입 시 사용된 Plasma 전류</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/Ion_Implantation.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quality Inspection -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">QualityInspection.csv</span>
+          <span class="file-desc">품질 검사 · 불량 Chip 수·에러 메시지·불량 위치(Wafer map)</span>
+        </span>
+        <span class="file-dim">7 COL / 17,040 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수 명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">No_Die</td><td class="type">ID</td><td class="detail">공정에 들어가는 하나의 Wafer 고유 ID</td></tr>
+              <tr><td class="var">Lot_Num</td><td class="type">연속형</td><td class="detail">공정 생산 단위, 하나의 단위에 같은 Process가 작동</td></tr>
+              <tr><td class="var">Wafer_Num</td><td class="type">연속형</td><td class="detail">하나의 Lot 내 Wafer 번호</td></tr>
+              <tr><td class="var">Datetime</td><td class="type">범주형</td><td class="detail">공정이 시작된 날짜</td></tr>
+              <tr><td class="var">Target</td><td class="type">범주형</td><td class="detail">불량 Chip 수</td></tr>
+              <tr><td class="var">Error_message</td><td class="type">연속형</td><td class="detail">불량과 관련된 내용</td></tr>
+              <tr><td class="var">Wafer_map</td><td class="type">연속형</td><td class="detail">불량이 발생된 Chip의 위치</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/QualityInspection.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 유의사항 -->
+  <section class="notice reveal">
+    <span class="ntag">⚠ NOTICE · 데이터 이용 유의사항</span>
+    <ol>
+      <li>제공 되는 데이터는 실제 데이터를 기반으로 학습에 맞게 가공한 데이터이며, 데이터에 명시된 <strong>제품명/지역/사람이름 등은 실제와 무관</strong>합니다.</li>
+      <li>DSA에서 제공되는 데이터 및 비즈니스 시나리오, 템플릿 등은 <strong>데이터스테이션의 자산</strong>입니다. 무단으로 복제·배포 시 법적 책임을 질 수 있습니다.
+        <ul class="banlist">
+          <li>블로그 / Git Hub 등에 제공된 데이터를 직접 올리는 행위</li>
+          <li>다른 공모전, 경진대회 등에 제공된 데이터를 사용하는 행위</li>
+          <li>온라인 채팅 및 커뮤니티에 제공된 데이터를 공유하는 행위</li>
+          <li>수익 및 사업을 목적으로 해당 데이터를 사용하는 행위</li>
+          <li>위의 사항을 포함하여, 제공된 데이터를 무단으로 복제 및 공유하는 기타 모든 행위</li>
+          <li class="ok">다만 데이터 분석 수행 결과, 프로젝트를 수행하며 직접 작성한 PPT(발표자료) 등은 포트폴리오에 사용 가능하니 참조 바랍니다.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <footer class="reveal">
+    <div class="brand">DSA TEAM PROJECT</div>
+    <p>SCENARIO 02 — SEMICONDUCTOR</p>
+  </footer>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← STEP 00 · 주제 선정</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step01.html">STEP 01 · 과제 정의 →</a>
+  </div>
+
+</div>
+
+<script>
+  // reveal
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i*45)+'ms';io.observe(el);
+  });
+
+  // file toggle
+  document.querySelectorAll('.file-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.file-item');
+      var body=item.querySelector('.file-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+</script>
+</body>
+</html>
