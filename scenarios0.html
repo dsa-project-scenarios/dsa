@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>해안 경계 감시 객체 탐지 프로젝트 | DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;
+    --bg-elev:#0e0e11;
+    --bg-card:#121216;
+    --line:#26262d;
+    --line-soft:#1a1a1f;
+    --txt:#f2f2f4;
+    --txt-dim:#9a9aa6;
+    --txt-faint:#5a5a64;
+    --accent:#e0524d;          /* Military / Defense 테마 컬러 */
+    --accent-dim:#b53b37;
+    --accent-glow:rgba(224,82,77,.16);
+    --warn:#ff8585;
+    --good:#3fb96e;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 18% 12%, var(--accent-glow), transparent 38%),
+      radial-gradient(circle at 85% 88%, rgba(224,82,77,.06), transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+    background-image:linear-gradient(var(--txt) 1px,transparent 1px),linear-gradient(90deg,var(--txt) 1px,transparent 1px);
+    background-size:46px 46px;
+  }
+  .wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* top bar */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    border-bottom:1px solid var(--line);
+    background:rgba(7,7,8,.85);backdrop-filter:blur(8px);
+  }
+  .topbar .bar{max-width:1080px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:14px}
+  .topbar .brandbar{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px;color:var(--txt)}
+  .topbar .brandbar .logo{width:30px;height:30px;flex:0 0 30px;overflow:hidden;display:grid;place-items:center}
+  .topbar .brandbar .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .topbar .brandbar small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* header */
+  header{padding:54px 0 24px;text-align:center}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow .cat-pill{
+    background:var(--accent);color:#1a0605;font-weight:700;
+    padding:3px 10px;border-radius:5px;letter-spacing:1px;
+  }
+  h1{
+    font-family:'Archivo','Noto Sans KR',sans-serif;
+    font-weight:800;
+    font-size:clamp(30px,5.4vw,54px);line-height:1.06;letter-spacing:-1px;
+    color:#ffffff;
+  }
+  .subkr{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--txt-faint);margin-top:16px;text-transform:uppercase}
+  .rule{width:60px;height:2px;background:var(--accent);margin:24px auto 0;border-radius:2px}
+
+  /* section head */
+  .section-head{margin:54px 0 24px}
+  .section-head .num{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent)}
+  .section-head h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;margin-top:4px}
+  .section-head .sub{color:var(--txt-faint);font-size:13.5px;font-weight:300;margin-top:2px}
+
+  /* scenario body */
+  .scenario{
+    background:var(--bg-card);
+    border:1px solid var(--line-soft);border-left:3px solid var(--accent);
+    border-radius:14px;padding:30px 36px;
+  }
+  .scenario .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;
+    letter-spacing:2px;color:var(--accent);border:1px solid var(--accent-dim);
+    padding:4px 12px;border-radius:20px;margin-bottom:20px;
+  }
+  .scenario p{color:var(--txt-dim);font-size:15px;font-weight:300;margin-bottom:18px}
+  .scenario p:last-child{margin-bottom:0}
+  .scenario p strong{color:var(--txt);font-weight:500}
+  .scenario p .hl{color:var(--accent);font-weight:500}
+
+  /* taxonomy */
+  .tax{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+  .tax .cls{
+    background:var(--bg-card);border:1px solid var(--line-soft);border-radius:13px;
+    padding:18px 18px 16px;transition:transform .25s,border-color .25s;
+  }
+  .tax .cls:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .tax .cls .code{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px}
+  .tax .cls .big{font-size:16px;font-weight:700;color:var(--txt);margin-top:3px}
+  .tax .cls ul{list-style:none;margin-top:12px;display:grid;gap:7px}
+  .tax .cls ul li{
+    font-size:12.5px;color:var(--txt-dim);display:flex;align-items:baseline;gap:8px;
+  }
+  .tax .cls ul li .sc{font-family:var(--mono);font-size:10.5px;color:var(--txt-faint);min-width:18px}
+  @media(max-width:760px){.tax{grid-template-columns:repeat(2,1fr)}}
+
+  /* objectives */
+  .obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .obj{
+    position:relative;background:var(--bg-card);
+    border:1px solid var(--line-soft);border-radius:13px;
+    padding:24px;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease;
+  }
+  .obj::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
+    transform:scaleY(0);transform-origin:top;transition:transform .35s ease;
+  }
+  .obj:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .obj:hover::before{transform:scaleY(1)}
+  .obj .n{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--accent-dim);border-radius:7px;
+    width:34px;height:34px;display:grid;place-items:center;margin-bottom:14px;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+  }
+  .obj p{font-size:14px;color:var(--txt-dim);font-weight:400;line-height:1.6}
+  .obj p strong{color:var(--txt);font-weight:500}
+
+  /* data files / toggle */
+  .files{display:grid;gap:14px}
+  .file-item{
+    border:1px solid var(--line-soft);border-radius:13px;background:var(--bg-card);overflow:hidden;
+    transition:border-color .25s;
+  }
+  .file-item.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .file-head{
+    width:100%;border:0;background:transparent;cursor:pointer;color:var(--txt);
+    display:flex;align-items:center;gap:16px;padding:18px 22px;text-align:left;font-family:'Noto Sans KR',sans-serif;
+  }
+  .file-head:hover{background:var(--bg-elev)}
+  .file-ico{
+    width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+    display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+    border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  }
+  .file-ico svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .file-meta{flex:1;min-width:0}
+  .file-name{font-family:var(--mono);font-size:13.5px;font-weight:700;color:var(--txt);word-break:break-all}
+  .file-desc{font-size:12.5px;color:var(--txt-faint);margin-top:3px}
+  .file-dim{
+    font-family:var(--mono);font-size:10.5px;color:var(--accent);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;white-space:nowrap;
+  }
+  .chev{width:20px;height:20px;flex-shrink:0;color:var(--txt-dim);stroke:currentColor;fill:none;stroke-width:2;transition:transform .3s}
+  .file-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .file-body{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .file-inner{padding:4px 22px 24px}
+
+  /* dictionary table */
+  .dict{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .dict th,.dict td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .dict thead th{
+    background:var(--bg-elev);font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;
+    color:var(--txt-faint);text-transform:uppercase;font-weight:500;position:sticky;top:0;
+  }
+  .dict td.var{font-family:var(--mono);font-weight:700;color:var(--txt);white-space:nowrap}
+  .dict td.type{font-family:var(--mono);font-size:11.5px;color:var(--accent);white-space:nowrap}
+  .dict td.detail{color:var(--txt-dim)}
+  .dict tbody tr:hover{background:rgba(224,82,77,.06)}
+  .table-scroll{overflow:auto;max-height:480px;border-radius:8px;border:1px solid var(--line-soft)}
+  .table-scroll .dict{margin-top:0}
+  .table-scroll .dict th,.table-scroll .dict td{border-top:0}
+  .download-note{
+    margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--txt-faint);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .download-note a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-dim)}
+  .download-note a:hover{color:#ff8e89}
+  .multi-note{
+    margin-top:10px;font-size:12px;color:var(--txt-faint);
+    background:var(--bg-elev);border:1px solid var(--line-soft);border-radius:8px;padding:11px 14px;
+  }
+  .multi-note code{font-family:var(--mono);color:var(--accent);font-size:11.5px}
+
+  /* notice / disclaimer */
+  .notice{
+    margin-top:54px;border:1px solid rgba(255,133,133,.28);border-left:3px solid var(--warn);
+    border-radius:13px;background:linear-gradient(90deg,rgba(255,133,133,.06),transparent 70%);
+    padding:26px 30px;
+  }
+  .notice .ntag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--warn);
+    border:1px solid rgba(255,133,133,.4);padding:4px 12px;border-radius:20px;margin-bottom:18px;
+  }
+  .notice ol{list-style:none;counter-reset:nt;display:grid;gap:14px}
+  .notice ol > li{
+    position:relative;padding-left:34px;font-size:14px;color:var(--txt-dim);line-height:1.65;
+  }
+  .notice ol > li::before{
+    counter-increment:nt;content:counter(nt);
+    position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:6px;
+    background:rgba(255,133,133,.14);border:1px solid rgba(255,133,133,.4);
+    color:var(--warn);font-family:var(--mono);font-size:11px;font-weight:700;
+    display:grid;place-items:center;
+  }
+  .notice ol > li strong{color:var(--txt);font-weight:500}
+  .notice ul.banlist{list-style:none;margin:14px 0 0 0;display:grid;gap:9px}
+  .notice ul.banlist li{
+    position:relative;padding:10px 14px 10px 34px;font-size:13.5px;color:#ffffff;font-weight:500;
+    background:var(--bg-card);border:1px solid var(--line-soft);border-radius:8px;line-height:1.55;
+  }
+  .notice ul.banlist li::before{
+    content:"✕";position:absolute;left:13px;top:10px;color:var(--warn);font-size:12px;font-weight:700;
+  }
+  .notice ul.banlist li.ok{border-color:rgba(63,185,110,.3);color:var(--txt-dim);font-weight:400}
+  .notice ul.banlist li.ok::before{content:"✓";color:var(--good)}
+
+  /* footer */
+  footer{
+    margin:54px 0 30px;padding-top:30px;border-top:1px solid var(--line-soft);text-align:center;
+  }
+  footer .brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--txt-dim)}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:1px;margin-top:6px}
+
+  /* pager */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:24px 0 60px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--bg-card);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:820px){.obj-grid{grid-template-columns:1fr}}
+  @media(max-width:520px){
+    .scenario{padding:24px 20px}
+    .file-head{padding:16px;gap:12px}
+    .file-inner{padding:4px 14px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="bar">
+    <div class="brandbar">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← 주제 선정으로</a></nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow reveal"><span class="cat-pill">DEFENSE</span> Military / Defense · Scenario 00</div>
+    <h1 class="reveal">해안 경계 감시<br>객체 탐지 프로젝트</h1>
+    <div class="subkr reveal">Coastal Surveillance Object Detection (EO / IR)</div>
+    <div class="rule reveal"></div>
+  </header>
+
+  <!-- 비즈니스 시나리오 -->
+  <div class="section-head reveal">
+    <div class="num">// 01</div>
+    <h2>Business Scenario</h2>
+    <div class="sub">비즈니스 시나리오</div>
+  </div>
+
+  <section class="scenario reveal">
+    <span class="tag">BUSINESS SCENARIO</span>
+    <p>K사는 해안 경계 감시 체계를 위한 영상 분석 및 데이터 솔루션을 개발하는 회사로, 군·해양경찰·지자체에 영상 감시장비와 탐지 데이터 분석 시스템을 공급하며 기술 경쟁력을 인정받는 회사이다. K사가 운용하는 해안 감시 체계는 <span class="hl">광학(EO, Electro-Optical) 및 적외선(IR, Infra-Red) 센서</span>로 해안 영상을 수집하고, 수집된 영상에서 탐지된 객체(선박·항공기·동물·기타)를 자동으로 분류·기록하여 관제 요원에게 전달하는 방식으로 운용된다. 각 영상은 해상도·밝기·명암·색상·엣지 강도 등으로 수치화되어 저장되며, 탐지된 객체마다 대분류(선박/항공기/동물/기타)와 소분류(어선/군함/상선/고정익/회전익/무인기/새/선전물/오물폭탄)가 라벨로 부여되어 영상 단위와 객체 단위 데이터가 함께 누적된다.</p>
+
+    <p>최근 한반도 해안·접경 일대의 안보 환경은 빠르게 변화하고 있다. 2025년 9월과 2026년 1월 두 차례에 걸쳐 소형 고정익 무인기가 접경 지역에 침투한 사건이 발생하는 등 저고도·소형 비행체 위협이 현실화되고 있으며, 이와 동시에 정부는 2026년 5월 국내에서 개발된 육상·해상·공중 무인이동체를 해양경비 임무에 본격 투입한다고 발표하면서 <strong>24시간 무인 감시 체계로의 전환</strong>이 가속화되고 있다. 그러나 이러한 기회의 이면에는 위기 요인이 동시에 존재한다. 첫째, 감시 범위가 확대되고 수집 영상량이 폭증하면서 관제 요원이 모든 탐지 결과를 일일이 확인하기 어려워지고, 특히 야간(IR) 환경에서는 영상 품질 저하로 오탐·미탐이 발생해 실제 위협 객체가 누락될 위험이 커지고 있다. 둘째, 해안 경계는 본질적으로 주·야간 및 광학·적외선 센서별로 영상의 특성이 크게 달라, 단일 기준으로는 객체 분류 신뢰도를 확보하기 어렵다. 실제로 수집 데이터를 보면 동일 기간에도 EO에서는 선박 탐지 비중이 높은 반면 IR(전량 야간)에서는 항공기·무인기 탐지 비중이 더 높게 나타나, 센서·시간대별 위협 양상의 차이가 뚜렷하다. 셋째, 무인기·선전물·오물폭탄 등 비전통적 위협 객체는 출현 빈도는 낮지만 탐지 실패 시 안보적 파장이 크므로, 영상의 수치적 특성과 탐지 정확도 간의 관계를 데이터로 규명해 감시 체계의 신뢰도를 끌어올리는 것이 절실한 상황이다.</p>
+
+    <p>현재의 기회를 살리고 위기 요인을 극복하기 위하여 K사는 데이터 분석팀을 구성하여, <strong>2024년 하반기 하절기 기간에 수집된 해안 감시 데이터(영상 수치화 데이터)</strong>를 활용해 영상 데이터에서 무엇이 탐지 성능을 좌우하는지, 주·야간 및 센서별 감시 환경의 차이는 무엇인지를 데이터 분석으로 규명하고, 정형 데이터 기반의 객체 분류 및 위협 탐지 보조 체계를 구성해 해안 경계 감시의 신뢰도를 높이고자 한다.</p>
+  </section>
+
+  <!-- 객체 분류 체계 -->
+  <div class="section-head reveal">
+    <div class="num">// 02</div>
+    <h2>Object Taxonomy</h2>
+    <div class="sub">탐지 객체 분류 체계 · 대분류(class) / 소분류(sub_class)</div>
+  </div>
+
+  <div class="tax reveal">
+    <div class="cls">
+      <div class="code">CLASS 1</div>
+      <div class="big">선박</div>
+      <ul>
+        <li><span class="sc">11</span> 어선</li>
+        <li><span class="sc">12</span> 군함</li>
+        <li><span class="sc">13</span> 상선</li>
+      </ul>
+    </div>
+    <div class="cls">
+      <div class="code">CLASS 2</div>
+      <div class="big">항공기</div>
+      <ul>
+        <li><span class="sc">21</span> 고정익</li>
+        <li><span class="sc">22</span> 회전익</li>
+        <li><span class="sc">23</span> 무인기</li>
+      </ul>
+    </div>
+    <div class="cls">
+      <div class="code">CLASS 3</div>
+      <div class="big">동물</div>
+      <ul>
+        <li><span class="sc">31</span> 새</li>
+      </ul>
+    </div>
+    <div class="cls">
+      <div class="code">CLASS 4</div>
+      <div class="big">기타</div>
+      <ul>
+        <li><span class="sc">41</span> 선전물</li>
+        <li><span class="sc">42</span> 오물폭탄</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 목적 -->
+  <div class="section-head reveal">
+    <div class="num">// 03</div>
+    <h2>Objectives</h2>
+    <div class="sub">프로젝트 목적</div>
+  </div>
+
+  <div class="obj-grid">
+    <div class="obj reveal">
+      <div class="n">01</div>
+      <p>센서(EO/IR)와 시간대(주·야간)에 따른 영상 수치 특성과 탐지 객체 분포의 차이를 확인하고, <strong>감시 환경 별 위협 양상을 분석</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">02</div>
+      <p>해안 감시 영상의 데이터 발생 요소(EO/IR 센서, 주·야간, 영상 수치 특성, 객체 라벨 구조)를 바탕으로 라벨 데이터와 영상 데이터 값의 통계적 특성을 활용한 <strong>모니터링 시스템 구성</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">03</div>
+      <p>영상의 수치 특성(밝기·명암·색상·엣지 강도·격자 별 밝기 등)을 기반으로 탐지 객체의 대분류·소분류를 예측하는 <strong>머신러닝 분류 모형을 구성</strong>하고, 위협 객체 탐지를 보조·모니터링할 수 있는 체계를 수립</p>
+    </div>
+  </div>
+
+  <!-- 제공 데이터 -->
+  <div class="section-head reveal">
+    <div class="num">// 04</div>
+    <h2>Provided Data</h2>
+    <div class="sub">제공 데이터 · 데이터 변수 정의서 (클릭하여 펼치기) · 조인 키: filename</div>
+  </div>
+
+  <div class="files reveal">
+
+    <!-- Image features -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Coastal_surveillance_image_features_EO / IR.csv</span>
+          <span class="file-desc">영상 수치화 데이터 · 색상·밝기·명암·엣지 강도·3×3 격자 밝기 (영상 1장 단위)</span>
+        </span>
+        <span class="file-dim">33 COL / EO 652 · IR 722</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">filename</td><td class="type">String</td><td class="detail">이미지 파일명 (각 행 고유 식별자)</td></tr>
+              <tr><td class="var">width</td><td class="type">Integer</td><td class="detail">이미지 가로 픽셀 수</td></tr>
+              <tr><td class="var">height</td><td class="type">Integer</td><td class="detail">이미지 세로 픽셀 수</td></tr>
+              <tr><td class="var">aspect_ratio</td><td class="type">Float</td><td class="detail">이미지 가로세로 비율 (width/height)</td></tr>
+              <tr><td class="var">mean_R</td><td class="type">Float</td><td class="detail">R(빨강) 채널 평균값</td></tr>
+              <tr><td class="var">mean_G</td><td class="type">Float</td><td class="detail">G(초록) 채널 평균값</td></tr>
+              <tr><td class="var">mean_B</td><td class="type">Float</td><td class="detail">B(파랑) 채널 평균값</td></tr>
+              <tr><td class="var">std_R</td><td class="type">Float</td><td class="detail">R 채널 픽셀값 표준편차</td></tr>
+              <tr><td class="var">std_G</td><td class="type">Float</td><td class="detail">G 채널 픽셀값 표준편차</td></tr>
+              <tr><td class="var">std_B</td><td class="type">Float</td><td class="detail">B 채널 픽셀값 표준편차</td></tr>
+              <tr><td class="var">brightness</td><td class="type">Float</td><td class="detail">이미지 전체 평균 밝기</td></tr>
+              <tr><td class="var">contrast</td><td class="type">Float</td><td class="detail">이미지 명암 대비 (밝기 표준편차 기반)</td></tr>
+              <tr><td class="var">min_brightness</td><td class="type">Float</td><td class="detail">이미지 내 최소 밝기값</td></tr>
+              <tr><td class="var">max_brightness</td><td class="type">Float</td><td class="detail">이미지 내 최대 밝기값</td></tr>
+              <tr><td class="var">median_brightness</td><td class="type">Float</td><td class="detail">이미지 밝기 중앙값</td></tr>
+              <tr><td class="var">hue</td><td class="type">Float</td><td class="detail">평균 색상(Hue) 값</td></tr>
+              <tr><td class="var">saturation</td><td class="type">Float</td><td class="detail">평균 채도(Saturation) 값 (0~1)</td></tr>
+              <tr><td class="var">value</td><td class="type">Float</td><td class="detail">평균 명도(Value) 값 (0~1)</td></tr>
+              <tr><td class="var">red_ratio</td><td class="type">Float</td><td class="detail">빨강 우세 픽셀 비율</td></tr>
+              <tr><td class="var">green_ratio</td><td class="type">Float</td><td class="detail">초록 우세 픽셀 비율</td></tr>
+              <tr><td class="var">blue_ratio</td><td class="type">Float</td><td class="detail">파랑 우세 픽셀 비율</td></tr>
+              <tr><td class="var">dark_ratio</td><td class="type">Float</td><td class="detail">어두운 픽셀 비율</td></tr>
+              <tr><td class="var">bright_ratio</td><td class="type">Float</td><td class="detail">밝은 픽셀 비율</td></tr>
+              <tr><td class="var">edge_strength</td><td class="type">Float</td><td class="detail">엣지(경계) 강도 지표</td></tr>
+              <tr><td class="var">bright_TL</td><td class="type">Float</td><td class="detail">3×3 격자 좌상단(Top-Left) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_TC</td><td class="type">Float</td><td class="detail">3×3 격자 상단중앙(Top-Center) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_TR</td><td class="type">Float</td><td class="detail">3×3 격자 우상단(Top-Right) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_ML</td><td class="type">Float</td><td class="detail">3×3 격자 중앙좌측(Middle-Left) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_MC</td><td class="type">Float</td><td class="detail">3×3 격자 중앙(Middle-Center) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_MR</td><td class="type">Float</td><td class="detail">3×3 격자 중앙우측(Middle-Right) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_BL</td><td class="type">Float</td><td class="detail">3×3 격자 좌하단(Bottom-Left) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_BC</td><td class="type">Float</td><td class="detail">3×3 격자 하단중앙(Bottom-Center) 영역 평균 밝기</td></tr>
+              <tr><td class="var">bright_BR</td><td class="type">Float</td><td class="detail">3×3 격자 우하단(Bottom-Right) 영역 평균 밝기</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="multi-note">EO(652행) / IR(722행) 두 파일로 제공되며 변수 구성은 동일합니다 (33개 변수).</div>
+          <div class="download-note">⬇ DATA &mdash;
+            <a href="files/Coastal_surveillance_image_features_EO.csv" download>데이터 다운로드 (EO)</a>
+            <a href="files/Coastal_surveillance_image_features_IR.csv" download>데이터 다운로드 (IR)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Label data -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><rect x="7" y="11" width="10" height="8" rx="1"/><path d="M10 15h4"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">Coastal_surveillance_label_data_EO / IR.csv</span>
+          <span class="file-desc">탐지 객체 라벨 데이터 · 센서·주야·객체 대/소분류·바운딩 박스 (객체 단위)</span>
+        </span>
+        <span class="file-dim">22 COL / EO 1,502 · IR 1,674</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">filename</td><td class="type">String</td><td class="detail">이미지 파일명 (image_features와 조인 키, 한 파일에 다수 객체 행 존재)</td></tr>
+              <tr><td class="var">id</td><td class="type">Integer</td><td class="detail">객체 레코드 식별 번호</td></tr>
+              <tr><td class="var">date</td><td class="type">String</td><td class="detail">촬영 일자 (YYYY-MM-DD)</td></tr>
+              <tr><td class="var">width</td><td class="type">Integer</td><td class="detail">이미지 가로 픽셀 수</td></tr>
+              <tr><td class="var">height</td><td class="type">Integer</td><td class="detail">이미지 세로 픽셀 수</td></tr>
+              <tr><td class="var">ref</td><td class="type">Float</td><td class="detail">참조용 필드 (전 행 결측, 미사용)</td></tr>
+              <tr><td class="var">sensor</td><td class="type">String</td><td class="detail">촬영 센서 종류. (EO : Electro-Optical / IR : Infra-Red)</td></tr>
+              <tr><td class="var">season</td><td class="type">String</td><td class="detail">촬영 계절. (하절기 / 동절기)</td></tr>
+              <tr><td class="var">night</td><td class="type">String</td><td class="detail">주야 구분. (주간 - days / 야간 - nights)</td></tr>
+              <tr><td class="var">weather</td><td class="type">String</td><td class="detail">촬영 시 기상. (맑음)</td></tr>
+              <tr><td class="var">wave</td><td class="type">Integer</td><td class="detail">파도 단계 (1단계)</td></tr>
+              <tr><td class="var">object_num</td><td class="type">Integer</td><td class="detail">해당 이미지 내 객체 수</td></tr>
+              <tr><td class="var">caption</td><td class="type">String</td><td class="detail">이미지 장면 설명 캡션 (한국어)</td></tr>
+              <tr><td class="var">annotation_class</td><td class="type">Integer</td><td class="detail">객체 대분류 코드 (1-선박 / 2-항공기 / 3-동물 / 4-기타)</td></tr>
+              <tr><td class="var">annotation_sub_class</td><td class="type">Integer</td><td class="detail">객체 소분류 코드 (11-어선 / 12-군함 / 13-상선 / 21-고정익 / 22-회전익 / 23-무인기 / 31-새 / 41-선전물 / 42-오물폭탄)</td></tr>
+              <tr><td class="var">bbox_x</td><td class="type">Integer</td><td class="detail">바운딩 박스 좌상단 x 좌표</td></tr>
+              <tr><td class="var">bbox_y</td><td class="type">Integer</td><td class="detail">바운딩 박스 좌상단 y 좌표</td></tr>
+              <tr><td class="var">bbox_w</td><td class="type">Integer</td><td class="detail">바운딩 박스 너비</td></tr>
+              <tr><td class="var">bbox_h</td><td class="type">Integer</td><td class="detail">바운딩 박스 높이</td></tr>
+              <tr><td class="var">class</td><td class="type">String</td><td class="detail">객체 대분류명. 예: 선박, 항공기, 기타, 동물</td></tr>
+              <tr><td class="var">sub_class</td><td class="type">String</td><td class="detail">객체 소분류명. 예: 어선, 상선, 군함, 고정익, 무인기</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="multi-note"><code>filename</code> 기준으로 <strong style="color:var(--txt)">image_features</strong>와 조인합니다. (영상 1장에 다수 객체 행이 존재) · EO(1,502행) / IR(1,674행) 두 파일, 변수 구성 동일</div>
+          <div class="download-note">⬇ DATA &mdash;
+            <a href="files/Coastal_surveillance_label_data_EO.csv" download>데이터 다운로드 (EO)</a>
+            <a href="files/Coastal_surveillance_label_data_IR.csv" download>데이터 다운로드 (IR)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 유의사항 -->
+  <section class="notice reveal">
+    <span class="ntag">⚠ NOTICE · 데이터 이용 유의사항</span>
+    <ol>
+      <li>제공 되는 데이터는 실제 데이터를 기반으로 학습에 맞게 가공한 데이터이며, 데이터에 명시된 <strong>제품명/지역/사람이름 등은 실제와 무관</strong>합니다.</li>
+      <li>DSA에서 제공되는 데이터 및 비즈니스 시나리오, 템플릿 등은 <strong>데이터스테이션의 자산</strong>입니다. 무단으로 복제·배포 시 법적 책임을 질 수 있습니다.
+        <ul class="banlist">
+          <li>블로그 / Git Hub 등에 제공된 데이터를 직접 올리는 행위</li>
+          <li>다른 공모전, 경진대회 등에 제공된 데이터를 사용하는 행위</li>
+          <li>온라인 채팅 및 커뮤니티에 제공된 데이터를 공유하는 행위</li>
+          <li>수익 및 사업을 목적으로 해당 데이터를 사용하는 행위</li>
+          <li>위의 사항을 포함하여, 제공된 데이터를 무단으로 복제 및 공유하는 기타 모든 행위</li>
+          <li class="ok">다만 데이터 분석 수행 결과, 프로젝트를 수행하며 직접 작성한 PPT(발표자료) 등은 포트폴리오에 사용 가능하니 참조 바랍니다.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <footer class="reveal">
+    <div class="brand">DSA TEAM PROJECT</div>
+    <p>SCENARIO 00 — MILITARY / DEFENSE</p>
+  </footer>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← STEP 00 · 주제 선정</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step01.html">STEP 01 · 과제 정의 →</a>
+  </div>
+
+</div>
+
+<script>
+  // reveal
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i*45)+'ms';io.observe(el);
+  });
+
+  // file toggle
+  document.querySelectorAll('.file-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.file-item');
+      var body=item.querySelector('.file-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+</script>
+</body>
+</html>
