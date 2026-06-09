@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>금융사 고객 데이터 기반 연체 위험 예측 프로젝트 | DSA Team Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;
+    --bg-elev:#0e0e11;
+    --bg-card:#121216;
+    --line:#26262d;
+    --line-soft:#1a1a1f;
+    --txt:#f2f2f4;
+    --txt-dim:#9a9aa6;
+    --txt-faint:#5a5a64;
+    --accent:#3fb96e;          /* Finance 테마 컬러 */
+    --accent-dim:#2c8c52;
+    --accent-glow:rgba(63,185,110,.16);
+    --warn:#ff8585;
+    --good:#3fb96e;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 18% 12%, var(--accent-glow), transparent 38%),
+      radial-gradient(circle at 85% 88%, rgba(63,185,110,.06), transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+    background-image:linear-gradient(var(--txt) 1px,transparent 1px),linear-gradient(90deg,var(--txt) 1px,transparent 1px);
+    background-size:46px 46px;
+  }
+  .wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* top bar */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    border-bottom:1px solid var(--line);
+    background:rgba(7,7,8,.85);backdrop-filter:blur(8px);
+  }
+  .topbar .bar{max-width:1080px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:14px}
+  .topbar .brandbar{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.5px;color:var(--txt)}
+  .topbar .brandbar .logo{width:30px;height:30px;flex:0 0 30px;overflow:hidden;display:grid;place-items:center}
+  .topbar .brandbar .logo img{width:100%;height:100%;object-fit:contain;display:block}
+  .topbar .brandbar small{color:var(--txt-faint);font-weight:400;font-size:11px;letter-spacing:2px}
+  .topbar nav{margin-left:auto;font-family:var(--mono);font-size:12px}
+  .topbar nav a{color:var(--txt-dim);text-decoration:none}
+  .topbar nav a:hover{color:var(--accent)}
+
+  /* header */
+  header{padding:54px 0 24px;text-align:center}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:4px;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow .cat-pill{
+    background:var(--accent);color:#04140a;font-weight:700;
+    padding:3px 10px;border-radius:5px;letter-spacing:1px;
+  }
+  h1{
+    font-family:'Archivo','Noto Sans KR',sans-serif;
+    font-weight:800;
+    font-size:clamp(30px,5.4vw,54px);line-height:1.06;letter-spacing:-1px;
+    color:#ffffff;
+  }
+  .subkr{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--txt-faint);margin-top:16px;text-transform:uppercase}
+  .rule{width:60px;height:2px;background:var(--accent);margin:24px auto 0;border-radius:2px}
+
+  /* section head */
+  .section-head{margin:54px 0 24px}
+  .section-head .num{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--accent)}
+  .section-head h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;margin-top:4px}
+  .section-head .sub{color:var(--txt-faint);font-size:13.5px;font-weight:300;margin-top:2px}
+
+  /* scenario body */
+  .scenario{
+    background:var(--bg-card);
+    border:1px solid var(--line-soft);border-left:3px solid var(--accent);
+    border-radius:14px;padding:30px 36px;
+  }
+  .scenario .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;
+    letter-spacing:2px;color:var(--accent);border:1px solid var(--accent-dim);
+    padding:4px 12px;border-radius:20px;margin-bottom:20px;
+  }
+  .scenario p{color:var(--txt-dim);font-size:15px;font-weight:300;margin-bottom:18px}
+  .scenario p:last-child{margin-bottom:0}
+  .scenario p strong{color:var(--txt);font-weight:500}
+  .scenario p .hl{color:var(--accent);font-weight:500}
+
+  /* data model (join structure) */
+  .model{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin-top:6px}
+  .model .hub{
+    background:color-mix(in srgb,var(--accent) 16%,var(--bg-card));
+    border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);
+    border-radius:13px;padding:18px 20px;text-align:center;min-width:150px;
+  }
+  .model .hub .lbl{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px}
+  .model .hub .nm{font-size:15px;font-weight:700;color:var(--txt);margin-top:4px}
+  .model .hub .key{font-family:var(--mono);font-size:10.5px;color:var(--txt-faint);margin-top:4px}
+  .model .branch{display:grid;gap:10px;margin-left:8px}
+  .model .leaf{
+    display:flex;align-items:center;gap:10px;
+    background:var(--bg-card);border:1px solid var(--line-soft);border-radius:11px;padding:11px 16px;
+    transition:transform .25s,border-color .25s;min-width:230px;
+  }
+  .model .leaf:hover{transform:translateX(4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .model .leaf .ar{font-family:var(--mono);color:var(--txt-faint)}
+  .model .leaf .nm{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--txt)}
+  .model .leaf .ds{font-size:12px;color:var(--txt-faint);margin-left:auto}
+  @media(max-width:680px){.model{justify-content:flex-start}.model .branch{margin-left:0;margin-top:12px}.model .leaf{min-width:0;width:100%}}
+
+  /* objectives */
+  .obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .obj{
+    position:relative;background:var(--bg-card);
+    border:1px solid var(--line-soft);border-radius:13px;
+    padding:24px;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease;
+  }
+  .obj::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);
+    transform:scaleY(0);transform-origin:top;transition:transform .35s ease;
+  }
+  .obj:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .obj:hover::before{transform:scaleY(1)}
+  .obj .n{
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    border:1px solid var(--accent-dim);border-radius:7px;
+    width:34px;height:34px;display:grid;place-items:center;margin-bottom:14px;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+  }
+  .obj p{font-size:14px;color:var(--txt-dim);font-weight:400;line-height:1.6}
+  .obj p strong{color:var(--txt);font-weight:500}
+
+  /* data files / toggle */
+  .files{display:grid;gap:14px}
+  .file-item{
+    border:1px solid var(--line-soft);border-radius:13px;background:var(--bg-card);overflow:hidden;
+    transition:border-color .25s;
+  }
+  .file-item.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .file-head{
+    width:100%;border:0;background:transparent;cursor:pointer;color:var(--txt);
+    display:flex;align-items:center;gap:16px;padding:18px 22px;text-align:left;font-family:'Noto Sans KR',sans-serif;
+  }
+  .file-head:hover{background:var(--bg-elev)}
+  .file-ico{
+    width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+    display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 14%,var(--bg-elev));
+    border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  }
+  .file-ico svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .file-meta{flex:1;min-width:0}
+  .file-name{font-family:var(--mono);font-size:13.5px;font-weight:700;color:var(--txt);word-break:break-all}
+  .file-desc{font-size:12.5px;color:var(--txt-faint);margin-top:3px}
+  .file-dim{
+    font-family:var(--mono);font-size:10.5px;color:var(--accent);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;white-space:nowrap;
+  }
+  .chev{width:20px;height:20px;flex-shrink:0;color:var(--txt-dim);stroke:currentColor;fill:none;stroke-width:2;transition:transform .3s}
+  .file-item.open .chev{transform:rotate(180deg);color:var(--accent)}
+  .file-body{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .file-inner{padding:4px 22px 24px}
+
+  /* dictionary table */
+  .dict{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .dict th,.dict td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .dict thead th{
+    background:var(--bg-elev);font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;
+    color:var(--txt-faint);text-transform:uppercase;font-weight:500;position:sticky;top:0;
+  }
+  .dict td.var{font-family:var(--mono);font-weight:700;color:var(--txt);white-space:nowrap}
+  .dict td.type{font-family:var(--mono);font-size:11.5px;color:var(--accent);white-space:nowrap}
+  .dict td.detail{color:var(--txt-dim)}
+  .dict tbody tr:hover{background:rgba(63,185,110,.06)}
+  .table-scroll{overflow:auto;max-height:480px;border-radius:8px;border:1px solid var(--line-soft)}
+  .table-scroll .dict{margin-top:0}
+  .table-scroll .dict th,.table-scroll .dict td{border-top:0}
+  .download-note{
+    margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--txt-faint);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .download-note a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-dim)}
+  .download-note a:hover{color:#67d693}
+  .multi-note{
+    margin-top:10px;font-size:12px;color:var(--txt-faint);
+    background:var(--bg-elev);border:1px solid var(--line-soft);border-radius:8px;padding:11px 14px;
+  }
+  .multi-note code{font-family:var(--mono);color:var(--accent);font-size:11.5px}
+
+  /* notice / disclaimer */
+  .notice{
+    margin-top:54px;border:1px solid rgba(255,133,133,.28);border-left:3px solid var(--warn);
+    border-radius:13px;background:linear-gradient(90deg,rgba(255,133,133,.06),transparent 70%);
+    padding:26px 30px;
+  }
+  .notice .ntag{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--warn);
+    border:1px solid rgba(255,133,133,.4);padding:4px 12px;border-radius:20px;margin-bottom:18px;
+  }
+  .notice ol{list-style:none;counter-reset:nt;display:grid;gap:14px}
+  .notice ol > li{
+    position:relative;padding-left:34px;font-size:14px;color:var(--txt-dim);line-height:1.65;
+  }
+  .notice ol > li::before{
+    counter-increment:nt;content:counter(nt);
+    position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:6px;
+    background:rgba(255,133,133,.14);border:1px solid rgba(255,133,133,.4);
+    color:var(--warn);font-family:var(--mono);font-size:11px;font-weight:700;
+    display:grid;place-items:center;
+  }
+  .notice ol > li strong{color:var(--txt);font-weight:500}
+  .notice ul.banlist{list-style:none;margin:14px 0 0 0;display:grid;gap:9px}
+  .notice ul.banlist li{
+    position:relative;padding:10px 14px 10px 34px;font-size:13.5px;color:#ffffff;font-weight:500;
+    background:var(--bg-card);border:1px solid var(--line-soft);border-radius:8px;line-height:1.55;
+  }
+  .notice ul.banlist li::before{
+    content:"✕";position:absolute;left:13px;top:10px;color:var(--warn);font-size:12px;font-weight:700;
+  }
+  .notice ul.banlist li.ok{border-color:rgba(63,185,110,.3);color:var(--txt-dim);font-weight:400}
+  .notice ul.banlist li.ok::before{content:"✓";color:var(--good)}
+
+  /* footer */
+  footer{
+    margin:54px 0 30px;padding-top:30px;border-top:1px solid var(--line-soft);text-align:center;
+  }
+  footer .brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--txt-dim)}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--txt-faint);letter-spacing:1px;margin-top:6px}
+
+  /* pager */
+  .pager{display:flex;justify-content:space-between;gap:14px;margin:24px 0 60px;flex-wrap:wrap}
+  .pager a{
+    font-family:var(--mono);font-size:12px;letter-spacing:1px;text-decoration:none;
+    color:var(--txt-dim);border:1px solid var(--line);padding:13px 20px;border-radius:7px;
+    transition:.2s;background:var(--bg-card);
+  }
+  .pager a:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:820px){.obj-grid{grid-template-columns:1fr}}
+  @media(max-width:520px){
+    .scenario{padding:24px 20px}
+    .file-head{padding:16px;gap:12px}
+    .file-inner{padding:4px 14px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="bar">
+    <div class="brandbar">
+      <span class="logo"><img src="https://dsa-project-scenarios.github.io/dsa/image/logo.png" alt="DSA"></span>
+      <span>DSA <small>TEAM PROJECT</small></span>
+    </div>
+    <nav><a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← 주제 선정으로</a></nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow reveal"><span class="cat-pill">BANKING</span> Finance · Scenario 05</div>
+    <h1 class="reveal">금융사 고객 데이터 기반<br>연체 위험 예측 프로젝트</h1>
+    <div class="subkr reveal">MyData Credit Risk &amp; Delinquency Prediction</div>
+    <div class="rule reveal"></div>
+  </header>
+
+  <!-- 비즈니스 시나리오 -->
+  <div class="section-head reveal">
+    <div class="num">// 01</div>
+    <h2>Business Scenario</h2>
+    <div class="sub">비즈니스 시나리오</div>
+  </div>
+
+  <section class="scenario reveal">
+    <span class="tag">BUSINESS SCENARIO</span>
+    <p>A사는 마이데이터 기반의 신용평가 및 금융 데이터 솔루션을 개발하는 금융 데이터 전문기업으로, 카드사·저축은행·캐피탈 등 여신 금융기관에 고객 신용위험 분석과 통합 부채관리 서비스를 공급하며 데이터 경쟁력을 인정받는 회사이다. A사가 운용하는 데이터 체계는 마이데이터 연동을 통해 고객의 인적정보·카드 보유 내역·대출 실행 내역·연체 이력을 기관별로 수집하고, 수집된 정보를 <span class="hl">회원 식별자(User_ID)</span>를 기준으로 통합하여 한 고객이 여러 금융기관에 걸쳐 보유한 카드·대출·연체 현황을 한눈에 조회·분석할 수 있는 방식으로 운용된다. 각 고객은 성별·연령·직업·결혼상태 등 기본 속성으로 정의되며, 카드 개설 건·대출 실행 건·연체 등록 건이 각각 기관번호·금액·상품종류·연체사유 등으로 수치화·범주화되어 고객 단위와 거래 단위 데이터가 함께 누적된다.</p>
+
+    <p>최근 한국의 가계부채·여신 환경은 빠르게 악화되고 있다. 정부의 가계대출 총량규제가 은행권에 집중되면서, 한도가 막힌 차주들이 저축은행·캐피탈 등 2금융권으로 이동하는 풍선효과가 본격화되었고, 그 결과 저축은행 신용대출 차주 중 3개 이상 금융기관에서 돈을 빌린 <strong>다중채무자 비율은 2025년 말 75.7%</strong>에 이르며 4년 사이 9.3%p 상승했다. 신규 신용대출 취급액 자체는 줄어드는데도 다중채무 비율은 오히려 높아져, 차주의 질적 구조가 악화되고 있는 것이다. 동시에 연체율 상승은 차주의 원리금 상환 부담 가중뿐 아니라 대출 접근성이 제한되면서 기존 대출을 상환하지 못하는 유동성 제약을 통해서도 발생하고 있어, 단순 소득·금액 정보만으로는 위험 차주를 가려내기 어려운 상황이다. 그러나 이러한 위기의 이면에는 기회 요인도 존재한다. 2026년 들어 마이데이터 2.0 체계가 시행되어 마이데이터 정보와 기존 고객정보의 결합 기준이 명확해지고, 동의 절차가 간소화되는 등 맞춤형 서비스 제공 기반이 강화되었고, 이에 따라 여러 기관에 흩어진 부채 정보를 통합 분석해 위험을 선제적으로 관리하고 적절한 고객에게 적절한 상품을 제안하는 데이터 기반 영업·리스크 관리의 가치가 그 어느 때보다 커지고 있다. 그러나 이러한 기회의 이면에는 위기 요인이 동시에 존재한다. 첫째, 한 고객의 부채가 여러 기관·여러 상품에 걸쳐 분산되어 있어 단일 기관의 정보만으로는 실제 상환 부담과 연체 위험을 정확히 파악하기 어렵다. 둘째, 카드·대출·연체 데이터는 본질적으로 기관 업권(은행/저축은행/캐피탈/카드사 등)과 상품종류·연체사유별로 위험의 성격이 크게 달라, 단일 기준으로는 위험 차주를 신뢰성 있게 분류하기 어렵다. 실제로 데이터를 보면 동일 고객이라도 은행 주택담보대출과 저축은행·캐피탈 신용대출, 카드론은 연체 양상이 뚜렷하게 다르게 나타난다. 셋째, 연체는 출현 빈도는 낮지만 발생 시 손실 파장이 크므로, 고객 속성과 카드·대출 보유 구조가 연체와 어떻게 연결되는지를 데이터로 규명해 위험관리 체계의 신뢰도를 끌어올리는 것이 절실한 상황이다.</p>
+
+    <p>현재의 기회를 살리고 위기 요인을 극복하기 위하여 A사는 데이터 분석팀을 구성하여, <strong>마이데이터로 통합 수집된 회원·카드·대출·연체 데이터</strong>를 활용해 어떤 고객 속성과 부채 구조가 연체 위험을 좌우하는지, 기관 업권·상품종류별 부채 양상의 차이는 무엇인지를 데이터 분석으로 규명하고, 정형 데이터 기반의 고객 위험 분류 및 연체 예측 보조 체계를 구성해 여신 리스크 관리와 고객 맞춤 영업의 신뢰도를 높이고자 한다.</p>
+  </section>
+
+  <!-- 데이터 구조 -->
+  <div class="section-head reveal">
+    <div class="num">// 02</div>
+    <h2>Data Map</h2>
+    <div class="sub">데이터 구조 · User_ID를 키로 회원 1명에 카드·대출·연체 거래가 연결</div>
+  </div>
+
+  <div class="model reveal">
+    <div class="hub">
+      <div class="lbl">MASTER</div>
+      <div class="nm">00_user</div>
+      <div class="key">KEY · User_ID</div>
+    </div>
+    <div class="branch">
+      <div class="leaf"><span class="ar">└→</span><span class="nm">00_card</span><span class="ds">카드 개설</span></div>
+      <div class="leaf"><span class="ar">└→</span><span class="nm">00_loan</span><span class="ds">대출 실행</span></div>
+      <div class="leaf"><span class="ar">└→</span><span class="nm">00_over</span><span class="ds">연체 등록</span></div>
+    </div>
+  </div>
+
+  <!-- 목적 -->
+  <div class="section-head reveal">
+    <div class="num">// 03</div>
+    <h2>Objectives</h2>
+    <div class="sub">프로젝트 목적</div>
+  </div>
+
+  <div class="obj-grid">
+    <div class="obj reveal">
+      <div class="n">01</div>
+      <p>고객의 인적 속성(성별·연령·직업·결혼상태)과 카드·대출 보유 구조에 따른 부채 규모·다중채무·연체 발생의 차이를 확인하고, <strong>고객군별 위험 양상을 분석</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">02</div>
+      <p>통합 부채 데이터의 발생 요소(회원 속성, 기관 업권, 상품종류, 대출·연체 금액 구조, 연체사유 라벨)를 바탕으로 라벨 데이터와 거래 데이터 값의 통계적 특성을 활용한 <strong>고객 위험 모니터링 시스템 구성</strong></p>
+    </div>
+    <div class="obj reveal">
+      <div class="n">03</div>
+      <p>고객 속성 및 카드·대출 보유 특성(보유 기관 수, 대출 상품 구성, 대출 금액 등)을 기반으로 연체 발생 여부 및 위험 등급을 예측하는 <strong>머신러닝 분류 모형을 구성</strong>하고, 고위험 차주를 탐지·모니터링할 수 있는 체계를 수립</p>
+    </div>
+  </div>
+
+  <!-- 제공 데이터 -->
+  <div class="section-head reveal">
+    <div class="num">// 04</div>
+    <h2>Provided Data</h2>
+    <div class="sub">제공 데이터 · 데이터 변수 정의서 (클릭하여 펼치기) · 조인 키: User_ID</div>
+  </div>
+
+  <div class="files reveal">
+
+    <!-- user -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">00_user.csv</span>
+          <span class="file-desc">회원 기본 인적 정보 · 성별·연령·직업·결혼상태 (회원 단위, 마스터)</span>
+        </span>
+        <span class="file-dim">6 COL / 2,000 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">User_ID</td><td class="type">String</td><td class="detail">회원 고유 식별자 (각 행 고유, 다른 데이터 조인 키)</td></tr>
+              <tr><td class="var">성별</td><td class="type">Integer</td><td class="detail">성별 코드 (1: 남성, 2: 여성)</td></tr>
+              <tr><td class="var">연령</td><td class="type">Integer</td><td class="detail">회원 나이 (만 나이, 25~89)</td></tr>
+              <tr><td class="var">Job</td><td class="type">String</td><td class="detail">직업 구분 (회사원, 산업노동자, 기술자, 서비스종사자, 은퇴, 공무원, 자영업자, 기업가, 학생, 군인, 주부, 미취업자, 미확인)</td></tr>
+              <tr><td class="var">Family</td><td class="type">String</td><td class="detail">결혼 상태 (결혼, 미혼, 이혼, 미확인)</td></tr>
+              <tr><td class="var">Unsubscribe</td><td class="type">Integer</td><td class="detail">마케팅 수신거부 여부 (0: 수신동의, 1: 수신거부)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/00_user.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- card -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">00_card.csv</span>
+          <span class="file-desc">카드 보유/발급 내역 · 발급 기관·카드유형·개설연월 (카드 개설 건 단위)</span>
+        </span>
+        <span class="file-dim">6 COL / 97,320 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">기준일자</td><td class="type">Integer</td><td class="detail">데이터 수집 기준 연월 (YYYYMM, 202312~202512)</td></tr>
+              <tr><td class="var">User_ID</td><td class="type">String</td><td class="detail">회원 고유 식별자 (00_user 조인 키)</td></tr>
+              <tr><td class="var">기관번호</td><td class="type">String</td><td class="detail">카드 발급 기관 식별자</td></tr>
+              <tr><td class="var">카드유형</td><td class="type">String</td><td class="detail">카드 종류 (신용카드, 체크카드)</td></tr>
+              <tr><td class="var">개설일자</td><td class="type">Integer</td><td class="detail">카드 개설 연월 (YYYYMM)</td></tr>
+              <tr><td class="var">회원유형</td><td class="type">String</td><td class="detail">카드 회원 구분 (개인카드, 사업자카드)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/00_card.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- loan -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">00_loan.csv</span>
+          <span class="file-desc">대출 내역 · 취급 기관 업권·대출분류·상품종류·대출금액 (대출 실행 건 단위)</span>
+        </span>
+        <span class="file-dim">8 COL / 58,922 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">기준일자</td><td class="type">Integer</td><td class="detail">데이터 수집 기준 연월 (YYYYMM, 202312~202512)</td></tr>
+              <tr><td class="var">User_ID</td><td class="type">String</td><td class="detail">회원 고유 식별자 (00_user 조인 키)</td></tr>
+              <tr><td class="var">기관번호</td><td class="type">String</td><td class="detail">대출 취급 기관 식별자</td></tr>
+              <tr><td class="var">대출일자</td><td class="type">Integer</td><td class="detail">대출 실행 연월 (YYYYMM)</td></tr>
+              <tr><td class="var">대출금액</td><td class="type">Integer</td><td class="detail">대출 금액</td></tr>
+              <tr><td class="var">기관</td><td class="type">String</td><td class="detail">대출 기관 업권 (은행, 신용카드사, 상호저축, 캐피탈, 상호금융, 생명보험사, 손해보험사, 기타)</td></tr>
+              <tr><td class="var">대출분류</td><td class="type">String</td><td class="detail">대출 유형 (개인대출, 단기카드대출, 장기카드대출)</td></tr>
+              <tr><td class="var">상품종류</td><td class="type">String</td><td class="detail">대출 상품 종류 (주택담보대출, 신용대출, 카드론/현금서비스, 전세자금대출, 학자금대출, 신차할부 등)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/00_loan.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- over -->
+    <div class="file-item">
+      <button class="file-head" aria-expanded="false">
+        <span class="file-ico"><svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+        <span class="file-meta">
+          <span class="file-name">00_over.csv</span>
+          <span class="file-desc">연체 이력 · 연체 기관 업권·연체금액·연체사유·세부사항 (연체 등록 건 단위)</span>
+        </span>
+        <span class="file-dim">9 COL / 10,784 ROW</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="file-body">
+        <div class="file-inner">
+          <div class="table-scroll">
+          <table class="dict">
+            <thead><tr><th>변수명</th><th>타입</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td class="var">기준일자</td><td class="type">Integer</td><td class="detail">데이터 수집 기준 연월 (YYYYMM, 202312~202512)</td></tr>
+              <tr><td class="var">User_ID</td><td class="type">String</td><td class="detail">회원 고유 식별자 (00_user 조인 키)</td></tr>
+              <tr><td class="var">기관번호</td><td class="type">String</td><td class="detail">연체 발생 기관 식별자</td></tr>
+              <tr><td class="var">연체등록일자</td><td class="type">Integer</td><td class="detail">연체 등록 연월 (YYYYMM)</td></tr>
+              <tr><td class="var">연체금액</td><td class="type">Integer</td><td class="detail">연체 금액</td></tr>
+              <tr><td class="var">기관</td><td class="type">String</td><td class="detail">연체 기관 업권 (은행, 신용카드사, 상호저축, 캐피탈, 상호금융, 생명보험사, 손해보험사, 기타)</td></tr>
+              <tr><td class="var">연체분류</td><td class="type">String</td><td class="detail">연체 분류 (신용도판단)</td></tr>
+              <tr><td class="var">연체사항</td><td class="type">String</td><td class="detail">연체 사유 (대출연체, 지급보증대지급, 부도)</td></tr>
+              <tr><td class="var">세부사항</td><td class="type">String</td><td class="detail">연체 세부 내역 (원금이자연체, 신용카드대금연체, 신용보증대지급, 카드대출연체, 부도, 기타)</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="download-note">⬇ DATA &mdash; <a href="files/00_over.csv" download>데이터 다운로드</a></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 유의사항 -->
+  <section class="notice reveal">
+    <span class="ntag">⚠ NOTICE · 데이터 이용 유의사항</span>
+    <ol>
+      <li>제공 되는 데이터는 실제 데이터를 기반으로 학습에 맞게 가공한 데이터이며, 데이터에 명시된 <strong>제품명/지역/사람이름 등은 실제와 무관</strong>합니다.</li>
+      <li>DSA에서 제공되는 데이터 및 비즈니스 시나리오, 템플릿 등은 <strong>데이터스테이션의 자산</strong>입니다. 무단으로 복제·배포 시 법적 책임을 질 수 있습니다.
+        <ul class="banlist">
+          <li>블로그 / Git Hub 등에 제공된 데이터를 직접 올리는 행위</li>
+          <li>다른 공모전, 경진대회 등에 제공된 데이터를 사용하는 행위</li>
+          <li>온라인 채팅 및 커뮤니티에 제공된 데이터를 공유하는 행위</li>
+          <li>수익 및 사업을 목적으로 해당 데이터를 사용하는 행위</li>
+          <li>위의 사항을 포함하여, 제공된 데이터를 무단으로 복제 및 공유하는 기타 모든 행위</li>
+          <li class="ok">다만 데이터 분석 수행 결과, 프로젝트를 수행하며 직접 작성한 PPT(발표자료) 등은 포트폴리오에 사용 가능하니 참조 바랍니다.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <footer class="reveal">
+    <div class="brand">DSA TEAM PROJECT</div>
+    <p>SCENARIO 05 — FINANCE</p>
+  </footer>
+
+  <div class="pager">
+    <a href="https://dsa-project-scenarios.github.io/dsa/step0.html">← STEP 00 · 주제 선정</a>
+    <a href="https://dsa-project-scenarios.github.io/dsa/step01.html">STEP 01 · 과제 정의 →</a>
+  </div>
+
+</div>
+
+<script>
+  // reveal
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i*45)+'ms';io.observe(el);
+  });
+
+  // file toggle
+  document.querySelectorAll('.file-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.file-item');
+      var body=item.querySelector('.file-body');
+      var open=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      body.style.maxHeight=open?body.scrollHeight+'px':null;
+    });
+  });
+</script>
+</body>
+</html>
